@@ -1,4 +1,8 @@
 # %%
+# ORIGINAL SYNCHRONOUS VERSION
+# For the new ASYNC version with concurrent processing and CEO interrupts,
+# see: async_secondscript.py (uses AsyncAdaptiveTinyPerson + AsyncTinyWorld)
+
 import json
 import sys
 from datetime import timedelta
