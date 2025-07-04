@@ -205,7 +205,7 @@ print("💬 Regular Participants: Lisa Chen (Dev, Standard) + Dr. Sarah Chen (MD
 print("🔧 Clean output mode enabled")
 
 # Create world with meeting broadcasting enabled
-world = TinyWorld("Medical Records Blockchain Project Meeting", max_additional_targets_to_display=6, is_meeting=True)
+world = TinyWorld("Medical Records Blockchain Project Meeting", max_additional_targets_to_display=None, is_meeting=True)
 world.add_agents([project_manager, head_of_technology, michael, software_developer, sarah, alex])
 
 # Make all agents able to communicate with each other
@@ -270,8 +270,7 @@ print("MEETING SIMULATION - HYBRID ARCHITECTURE WITH CLEAN OUTPUT")
 print("="*80)
 
 # Run the simulation with natural conversation flow
-# Emily will NOT wrap up unless total rounds >= 7 AND it's the second-to-last round
-world.run(6, timedelta_per_step=timedelta(minutes=5))
+world.run(10, timedelta_per_step=timedelta(minutes=5))
 
 print("\n" + "="*80)
 print("EXTRACTING STRUCTURED RESULTS FROM MEETING")
