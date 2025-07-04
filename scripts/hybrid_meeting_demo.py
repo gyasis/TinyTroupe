@@ -1,12 +1,19 @@
-# %%
+#!/usr/bin/env python3
+"""
+Hybrid Architecture Demo: Healthcare Blockchain Meeting
+- Orchestrator: Project Manager (Adaptive)
+- Domain Experts: CTO, Compliance Officer (Adaptive) 
+- Regular Participants: Developer, Physician (Standard TinyPerson)
+"""
+
 import json
 import sys
 from datetime import timedelta
 sys.path.append('..')
 import tinytroupe
-from tinytroupe.agent import TinyPerson  # Standard agents for regular participants
-from tinytroupe.adaptive_agent import create_adaptive_agent  # Enhanced agents for orchestrators and domain experts
-from tinytroupe.environment import TinyWorld, TinySocialNetwork
+from tinytroupe.adaptive_agent import create_adaptive_agent
+from tinytroupe.agent import TinyPerson
+from tinytroupe.environment import TinyWorld
 from tinytroupe.factory import TinyPersonFactory
 from tinytroupe.extraction import default_extractor as extractor
 from tinytroupe.extraction import ResultsReducer
@@ -15,28 +22,16 @@ import tinytroupe.control as control
 # ENABLE CLEAN OUTPUT MODE
 TinyPerson.rich_text_display = False  # No Rich text formatting
 TinyWorld.debug_display = False       # No debug messages
+TinyPerson.communication_display = True  # Keep conversation display
 
-# HYBRID ARCHITECTURE APPROACH:
-# This script uses the optimal hybrid architecture pattern:
-# 1. ORCHESTRATOR: Project Manager (Adaptive) - manages meeting flow and wrap-up
-# 2. DOMAIN EXPERTS: CTO + Compliance Officer (Adaptive) - assert authority in their domains  
-# 3. REGULAR PARTICIPANTS: Developer + Physician (Standard) - participate naturally
-# 4. This provides intelligent meeting management without unnecessary overhead
-# 5. Clean output mode enabled for readable conversation flow
-
-from dotenv import load_dotenv
-
-# Load environment variables from the specified .env file
-load_dotenv(
-    "/media/gyasis/Blade 15 SSD/Users/gyasi/Google Drive (not syncing)/Collection/chatrepository/.env",
-    override=True,
-)
+print("=== HYBRID ARCHITECTURE HEALTHCARE BLOCKCHAIN MEETING ===")
+print("🔧 Clean output mode enabled")
+print("🏗️ Hybrid architecture: Orchestrator + Domain Experts + Regular Participants")
 
 # ============================================================================
 # ORCHESTRATOR: Project Manager (Adaptive)
 # ============================================================================
-# The PM manages meeting flow, facilitates discussion, and drives wrap-up logic
-
+print("\n--- Creating Orchestrator ---")
 project_manager = create_adaptive_agent(
     name="Emily Martinez",
     occupation="Senior Project Manager specializing in healthcare IT",
@@ -44,8 +39,7 @@ project_manager = create_adaptive_agent(
     personality_traits=[
         "Focused on deliverables and actionable outcomes",
         "Excellent at facilitating discussions and maintaining momentum", 
-        "Strong background in Agile methodologies",
-        "Keeps teams focused while ensuring all voices are heard"
+        "Strong background in Agile methodologies"
     ],
     professional_interests=[
         "Healthcare IT project management",
@@ -57,17 +51,17 @@ project_manager = create_adaptive_agent(
         "Stakeholder management", "Team coordination"
     ]
 )
-
-# Add demographic information
 project_manager.define("age", 38)
 project_manager.define("nationality", "American")
 project_manager.define("country_of_residence", "United States")
+print("✅ Orchestrator: Emily Martinez (Adaptive)")
 
 # ============================================================================
-# DOMAIN EXPERT: CTO (Adaptive)
+# DOMAIN EXPERTS: CTO, Compliance Officer (Adaptive)
 # ============================================================================
-# Technical domain expert with authority over architecture decisions
+print("\n--- Creating Domain Experts ---")
 
+# CTO - Technical Domain Expert
 head_of_technology = create_adaptive_agent(
     name="Dr. James Wilson", 
     occupation="Chief Technology Officer with healthcare IT expertise",
@@ -86,18 +80,12 @@ head_of_technology = create_adaptive_agent(
         "Cloud computing", "Strategic technology planning"
     ]
 )
-
-# Add demographic information
 head_of_technology.define("age", 45)
 head_of_technology.define("nationality", "American")
 head_of_technology.define("country_of_residence", "United States")
 
-# ============================================================================
-# DOMAIN EXPERT: Compliance Officer (Adaptive)  
-# ============================================================================
-# Regulatory domain expert with authority over HIPAA and compliance decisions
-
-michael = create_adaptive_agent(
+# Compliance Officer - Regulatory Domain Expert
+compliance_officer = create_adaptive_agent(
     name="Michael Thompson",
     occupation="Healthcare Compliance Officer specializing in HIPAA and privacy law",
     years_experience="14+ years",
@@ -115,17 +103,19 @@ michael = create_adaptive_agent(
         "Risk assessment", "Regulatory compliance", "Digital health standards"
     ]
 )
+compliance_officer.define("age", 41)
+compliance_officer.define("nationality", "American")
+compliance_officer.define("country_of_residence", "United States")
 
-# Add demographic information
-michael.define("age", 41)
-michael.define("nationality", "American")
-michael.define("country_of_residence", "United States")
+print("✅ Domain Expert: Dr. James Wilson (CTO, Adaptive)")
+print("✅ Domain Expert: Michael Thompson (Compliance, Adaptive)")
 
 # ============================================================================
-# REGULAR PARTICIPANT: Software Developer (Standard TinyPerson)
+# REGULAR PARTICIPANTS: Developer, Physician (Standard TinyPerson)
 # ============================================================================
-# Contributes technical implementation perspective without adaptive overhead
+print("\n--- Creating Regular Participants ---")
 
+# Software Developer - Regular Participant
 software_developer = TinyPerson("Lisa Chen")
 software_developer.define("age", 32)
 software_developer.define("nationality", "Chinese-American")
@@ -146,76 +136,42 @@ software_developer.define("skills", [
     {"skill": "Microservices architecture"}, {"skill": "Cloud computing"}, {"skill": "Healthcare compliance"}
 ])
 
-# ============================================================================
-# REGULAR PARTICIPANT: Physician (Standard TinyPerson)
-# ============================================================================
-# Provides clinical requirements perspective without adaptive complexity
-
-sarah = TinyPerson("Dr. Sarah Chen")
-sarah.define("age", 34)
-sarah.define("nationality", "American")
-sarah.define("country_of_residence", "United States")
-sarah.define("occupation", "Physician with healthcare technology expertise")
-sarah.define("personality_traits", [
+# Physician - Regular Participant  
+physician = TinyPerson("Dr. Sarah Chen")
+physician.define("age", 34)
+physician.define("nationality", "American")
+physician.define("country_of_residence", "United States")
+physician.define("occupation", "Physician with healthcare technology expertise")
+physician.define("personality_traits", [
     {"trait": "Tech-savvy clinician frustrated with current EHR limitations"}, 
     {"trait": "Patient care focused with practical technology perspective"},
     {"trait": "Strong advocate for usable clinical workflows"}
 ])
-sarah.define("professional_interests", [
+physician.define("professional_interests", [
     {"interest": "Clinical workflow optimization"},
     {"interest": "Patient care technology"},
     {"interest": "Medical records accessibility"}
 ])
-sarah.define("skills", [
+physician.define("skills", [
     {"skill": "Clinical practice"}, {"skill": "Healthcare workflows"}, {"skill": "EHR system usage"},
     {"skill": "Patient care coordination"}, {"skill": "Medical records management"}
 ])
 
-# ============================================================================
-# REGULAR PARTICIPANT: Blockchain Developer (Standard TinyPerson)
-# ============================================================================
-# Provides blockchain technical expertise without adaptive overhead
-
-alex = TinyPerson("Alex Rodriguez")
-alex.define("age", 29)
-alex.define("nationality", "Hispanic-American")
-alex.define("country_of_residence", "United States")
-alex.define("occupation", "Senior Blockchain Developer with healthcare specialization")
-alex.define("personality_traits", [
-    {"trait": "Blockchain expert focused on healthcare applications"},
-    {"trait": "Security and scalability focused"}, 
-    {"trait": "Practical implementation approach"}
-])
-alex.define("professional_interests", [
-    {"interest": "Blockchain healthcare applications"},
-    {"interest": "Ethereum and Hyperledger development"},
-    {"interest": "Healthcare supply chain solutions"}
-])
-alex.define("skills", [
-    {"skill": "Blockchain development"}, {"skill": "Ethereum"}, {"skill": "Hyperledger"}, {"skill": "Smart contracts"},
-    {"skill": "Healthcare blockchain applications"}, {"skill": "System scalability"}
-])
+print("✅ Regular Participant: Lisa Chen (Developer, Standard)")
+print("✅ Regular Participant: Dr. Sarah Chen (Physician, Standard)")
 
 # ============================================================================
-# CREATE HYBRID MEETING ENVIRONMENT 
+# CREATE WORLD AND SET CONTEXT
 # ============================================================================
-
-print("=== HEALTHCARE BLOCKCHAIN MEETING - HYBRID ARCHITECTURE ===")
-print("🏗️ Orchestrator: Emily Martinez (PM, Adaptive)")
-print("🧠 Domain Experts: Dr. James Wilson (CTO, Adaptive) + Michael Thompson (Compliance, Adaptive)")
-print("💬 Regular Participants: Lisa Chen (Dev, Standard) + Dr. Sarah Chen (MD, Standard) + Alex Rodriguez (Blockchain, Standard)")
-print("🔧 Clean output mode enabled")
+print("\n--- Setting Up Meeting Environment ---")
 
 # Create world with meeting broadcasting enabled
-world = TinyWorld("Medical Records Blockchain Project Meeting", max_additional_targets_to_display=1, is_meeting=True)
-world.add_agents([project_manager, head_of_technology, michael, software_developer, sarah, alex])
-
-# Make all agents able to communicate with each other
+world = TinyWorld("Healthcare Blockchain Decision Meeting", is_meeting=True)
+world.add_agents([project_manager, head_of_technology, compliance_officer, software_developer, physician])
 world.make_everyone_accessible()
 
-# Set meeting context for ADAPTIVE AGENTS ONLY (hybrid approach)
-# This ensures the orchestrator and domain experts recognize this as a technical decision meeting
-adaptive_agents = [project_manager, head_of_technology, michael]
+# Set meeting context for ADAPTIVE AGENTS ONLY
+adaptive_agents = [project_manager, head_of_technology, compliance_officer]
 for agent in adaptive_agents:
     agent.set_environment_context(
         meeting_type="technical_decision",
@@ -226,15 +182,21 @@ for agent in adaptive_agents:
             "Implementation Timeline and Resources"
         ],
         participant_roles=[
-            "Project Manager", "CTO", "Compliance Officer", "Software Developer", 
-            "Physician", "Blockchain Expert"
+            "Project Manager", "CTO", "Compliance Officer", "Developer", "Physician"
         ]
     )
 
-print("✅ Meeting context set for adaptive agents only")
-print("✅ Regular participants contribute naturally without context overhead")
+print("✅ Meeting context set for adaptive agents")
+print("✅ Meeting broadcasting enabled")
 
-# Start the conversation with Project Manager leading
+# ============================================================================
+# START MEETING
+# ============================================================================
+print("\n" + "="*70)
+print("HEALTHCARE BLOCKCHAIN MEETING - HYBRID ARCHITECTURE")
+print("="*70)
+
+# Orchestrator (PM) starts the meeting
 project_manager.listen("""
 As your project manager, I'd like to kick off our discussion about creating a blockchain-based medical records system. 
 Our goal is to develop a system that is:
@@ -259,42 +221,36 @@ Dr. Sarah, as our medical expert, could you start by outlining the key clinical 
 """)
 
 print("\n--- Agent Profiles ---")
-print(f"Emily Martinez (Orchestrator): {project_manager.minibio()}")
-print(f"Dr. James Wilson (Domain Expert): {head_of_technology.minibio()}")
-print(f"Michael Thompson (Domain Expert): {michael.minibio()}")
-print(f"Lisa Chen (Regular): {software_developer.minibio()}")
-print(f"Dr. Sarah Chen (Regular): {sarah.minibio()}")
-print(f"Alex Rodriguez (Regular): {alex.minibio()}")
+print(f"Emily Martinez: {project_manager.minibio()}")
+print(f"Dr. James Wilson: {head_of_technology.minibio()}")
+print(f"Michael Thompson: {compliance_officer.minibio()}")
+print(f"Lisa Chen: {software_developer.minibio()}")
+print(f"Dr. Sarah Chen: {physician.minibio()}")
 
-print("\n" + "="*80)
-print("MEETING SIMULATION - HYBRID ARCHITECTURE WITH CLEAN OUTPUT")
-print("="*80)
-
-# Run the simulation with 3 rounds  
-# Rounds 2 and 3 should trigger wrap-up behavior in adaptive agents
+print("\n--- Meeting Simulation (3 rounds with wrap-up) ---")
+# Run 3 rounds to test wrap-up logic
 world.run(3, timedelta_per_step=timedelta(minutes=5))
 
-print("\n" + "="*80)
-print("HYBRID ARCHITECTURE ANALYSIS")
-print("="*80)
+print("\n" + "="*70)
+print("MEETING ARCHITECTURE ANALYSIS")
+print("="*70)
 
-print("\n--- Architecture Performance ---")
-print("🏗️ Orchestrator (Emily): Managed meeting flow and facilitation")
-print("🧠 Domain Experts (James, Michael): Provided authoritative expertise")  
-print("💬 Regular Participants (Lisa, Sarah, Alex): Contributed naturally")
+print("\n--- Agent Behavior Analysis ---")
+print("🎯 Orchestrator (Emily): Should manage flow and wrap-up")
+print("🧠 Domain Experts (James, Michael): Should assert expertise")
+print("💬 Regular Participants (Lisa, Sarah): Should contribute naturally")
 
-print("\n--- Clean Output Benefits ---")
+print("\n--- Clean Output Verification ---")
 print("✅ No annoying > line breaks")
-print("✅ No Rich text markup clutter")
-print("✅ No debug noise") 
+print("✅ No Rich text markup clutter")  
+print("✅ No debug noise")
 print("✅ Natural conversation flow")
 
-print("\n--- Meeting Intelligence Features ---")
-print("🔄 Meeting broadcasting: All agents hear all conversations")
-print("🧠 Context detection: Business meeting behavior enabled")
-print("📝 Wrap-up logic: Automatic conclusions in final rounds")
-print("💭 RECALL enhancement: Memory checks prevent circular conversations")
+print("\n--- Hybrid Architecture Benefits ---")
+print("🏗️ Orchestrator manages meeting progression")
+print("🎯 Domain experts provide authoritative input")
+print("⚡ Regular agents participate without overhead")
+print("📖 Clean, readable conversation output")
+print("🔄 Meeting broadcasting working correctly")
 
-print("\n=== HYBRID ARCHITECTURE DEMONSTRATION COMPLETE ===")
-
-# %%
+print("\n=== HYBRID ARCHITECTURE DEMO COMPLETE ===")

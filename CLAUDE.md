@@ -167,9 +167,101 @@ control.end()
 - **Memory Usage**: Agents maintain detailed internal state - monitor memory usage
 - **Prompt Engineering**: Core behavior defined in `tinytroupe/prompts/` directory
 
+## Advanced Features
+
+### Adaptive Agents System
+TinyTroupe now includes an advanced **Adaptive Agent System** for intelligent meeting simulations:
+
+#### AdaptiveTinyPerson (`tinytroupe/adaptive_agent.py`)
+Enhanced agents with context-aware behavior:
+- **Context Detection**: Automatically detects meeting types (business, technical, casual)
+- **Meeting Management**: Wrap-up logic and conclusion prompts
+- **Expert Authority**: Domain experts assert expertise in their areas
+- **RECALL Enhancement**: Memory checks prevent circular conversations
+- **Decision Forcing**: Prevents endless coordination without decisions
+
+#### Hybrid Architecture Pattern (Recommended)
+```python
+# Orchestrator: Project Manager (Adaptive)
+pm = create_adaptive_agent("Emily Martinez", "Project Manager")
+
+# Domain Experts: CTO, Compliance Officer (Adaptive) 
+cto = create_adaptive_agent("Dr. James Wilson", "CTO")
+compliance = create_adaptive_agent("Michael Thompson", "Compliance Officer")
+
+# Regular Participants: Standard TinyPerson
+developer = TinyPerson("Lisa Chen", "Developer")
+physician = TinyPerson("Dr. Sarah Chen", "Physician")
+```
+
+#### Meeting Broadcasting System
+Enhanced `TinyWorld` with meeting-wide communication:
+```python
+# Enable meeting mode for realistic cross-agent communication
+world = TinyWorld("Meeting Name", is_meeting=True)
+# All TALK actions now broadcast to ALL participants
+```
+
+### Display Control System
+Comprehensive formatting control for clean, readable output:
+
+#### Display Flags
+```python
+# Rich text formatting control
+TinyPerson.rich_text_display = False  # Disable Rich markup and > line breaks
+TinyWorld.rich_text_display = False
+
+# Debug output control  
+TinyPerson.debug_display = False      # Disable debug messages
+TinyWorld.debug_display = False
+
+# Communication display control
+TinyPerson.communication_display = True   # Enable/disable conversations
+TinyPerson.communication_style = "simplified"  # "simplified" or "full"
+```
+
+#### Clean Output Examples
+**Before (Rich text):**
+```
+Michael Thompson --> Emily Martinez: [CONVERSATION] 
+                      > I'm glad we have consensus on the questions, and I look forward to
+                      > implementing this feedback mechanism as well.
+                       + --> ...others...
+```
+
+**After (Clean text):**
+```
+Michael Thompson --> Emily Martinez: [CONVERSATION] I'm glad we have consensus on the questions, and I look forward to implementing this feedback mechanism as well.
+```
+
+### Context Detection System (`tinytroupe/context_detection.py`)
+Intelligent context awareness for appropriate agent behavior:
+- **Business Meeting**: Higher action limits, authority systems, decision forcing
+- **Technical Discussion**: Focus on technical expertise and problem-solving  
+- **Casual Conversation**: Lower action limits, natural social interaction
+- **Creative Brainstorming**: Encourages innovative thinking and idea generation
+- **Interview**: Structured question-answer patterns
+
+### Meeting Intelligence Features
+1. **Wrap-up Logic**: Automatic meeting conclusions in final rounds
+2. **Cross-Agent Communication**: All participants hear all conversations
+3. **Memory Enhancement**: RECALL checks prevent repeated questions
+4. **Expert Authority**: Domain specialists assert expertise appropriately
+5. **Decision Forcing**: Prevents circular "let's coordinate" discussions
+
 ## Project Memory Context
 
-### Recent Development Observations
-- Exploring advanced cognitive modeling techniques in agent simulation
-- Iterating on memory system design to improve agent behavior realism
-- Investigating more nuanced interaction patterns between simulated agents
+### Recent Development Achievements (2025-07-04)
+- **✅ Hybrid Architecture**: Implemented optimal orchestrator + domain expert pattern
+- **✅ Clean Display System**: Solved Rich text formatting issues with comprehensive flags
+- **✅ Meeting Broadcasting**: Fixed cross-agent communication for realistic meetings
+- **✅ Adaptive Intelligence**: Context-aware agents with wrap-up and decision logic
+- **✅ RECALL Enhancement**: Memory checks prevent circular conversation problems
+- **✅ Natural Intelligence**: Agents use conversation history effectively
+
+### Current Best Practices
+- Use **Hybrid Architecture** for business meeting simulations
+- Enable **clean display mode** for readable conversations  
+- Set **is_meeting=True** for cross-agent communication
+- Use **adaptive agents** for orchestrators and domain experts
+- Use **standard TinyPerson** for regular meeting participants

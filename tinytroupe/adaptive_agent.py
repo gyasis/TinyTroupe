@@ -135,8 +135,62 @@ class AdaptiveTinyPerson(TinyPerson):
                     })
                 
                 enhanced_config["expertise_domains"] = expertise_domains
+            
+            # Add enhanced RECALL instructions for business meetings
+            enhanced_config["recall_before_questions"] = True
+            enhanced_config["memory_check_instructions"] = self._get_memory_check_instructions(occupation)
         
         return enhanced_config
+    
+    def _get_memory_check_instructions(self, occupation: str) -> str:
+        """Generate role-specific memory check instructions for business meetings."""
+        
+        base_instructions = """
+CRITICAL MEMORY CHECK PROTOCOL:
+Before asking ANY question about tasks, assignments, or topics, you MUST:
+
+1. THINK about what you want to ask
+2. RECALL recent discussions about this topic (use keywords like "hospital contacts", "user testing", "assignments", etc.)
+3. THINK about what you found in your memory
+4. Only ask the question if the information is truly missing or needs clarification
+
+If you find that someone already volunteered or committed to handle a task, acknowledge this and move the conversation forward instead of repeating the question.
+"""
+        
+        # Add role-specific guidance
+        occupation_lower = occupation.lower()
+        
+        if "manager" in occupation_lower or "director" in occupation_lower:
+            role_specific = """
+As a project manager/leader, your role is to:
+- Track what has been decided and assigned
+- Move the agenda forward when topics are resolved
+- Summarize progress and redirect to next agenda items
+- Say things like: "Great! [Task] is covered by [Person]. Let's move to [Next Topic]."
+"""
+        elif "developer" in occupation_lower or "architect" in occupation_lower:
+            role_specific = """
+As a technical expert, your role is to:
+- Provide specific technical recommendations
+- Ask clarifying questions about implementation details
+- Recall previous technical decisions to build upon them
+"""
+        elif "compliance" in occupation_lower or "legal" in occupation_lower:
+            role_specific = """
+As a compliance expert, your role is to:
+- Assert regulatory requirements clearly
+- Recall relevant compliance standards and constraints
+- Provide definitive guidance on regulatory matters
+"""
+        else:
+            role_specific = """
+In your professional role, focus on:
+- Contributing your domain expertise effectively
+- Building upon previous discussion points
+- Avoiding repetition of already-covered topics
+"""
+        
+        return base_instructions + "\n" + role_specific
     
     def _generate_prompt(self, environment_hint: str = None) -> str:
         """Generate the agent prompt with context-aware adaptations."""
@@ -229,7 +283,7 @@ class AdaptiveTinyPerson(TinyPerson):
             # Force regeneration of system message with environment hints
             if "MEETING WRAP-UP" in environment_hint or "MEETING CONCLUSION" in environment_hint:
                 # Add the directive to current context
-                if "project manager" in self.get("occupation", "").lower():
+                if "project manager" in (self._configuration.get("occupation", "") or "").lower():
                     # Project managers take lead in wrap-up
                     self._configuration["take_meeting_lead"] = True
                 

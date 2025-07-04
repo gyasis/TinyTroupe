@@ -94,6 +94,12 @@ class TinyPerson(JsonSerializableRegistry):
     # outputs as they are produced.
     communication_display:bool=True
     
+    # Whether to use Rich text formatting (colors, styles) or plain text
+    rich_text_display:bool=True
+    
+    # Whether to show debug messages (like "_handle_talk: MEETING MODE" etc.)  
+    debug_display:bool=False
+    
 
     def __init__(self, name:str=None, 
                  episodic_memory=None,
@@ -1187,22 +1193,22 @@ class TinyPerson(JsonSerializableRegistry):
                     stimus["content"], max_length=max_content_length
                 )
 
-                indent = " " * len(msg_simplified_actor) + "      > "
-                msg_simplified_content = textwrap.fill(
-                    msg_simplified_content,
-                    width=TinyPerson.PP_TEXT_WIDTH,
-                    initial_indent=indent,
-                    subsequent_indent=indent,
-                )
-
-                #
-                # Using rich for formatting. Let's make things as readable as possible!
-                #
-
-                rich_style = utils.RichTextStyle.get_style_for("stimulus", msg_simplified_type)
-                lines.append(
-                    f"[{rich_style}][underline]{msg_simplified_actor}[/] --> [{rich_style}][underline]{self.name}[/]: [{msg_simplified_type}] \n{msg_simplified_content}[/]"
-                )
+                if TinyPerson.rich_text_display:
+                    # Rich text formatting with line wrapping and > prefixes
+                    indent = " " * len(msg_simplified_actor) + "      > "
+                    msg_simplified_content = textwrap.fill(
+                        msg_simplified_content,
+                        width=TinyPerson.PP_TEXT_WIDTH,
+                        initial_indent=indent,
+                        subsequent_indent=indent,
+                    )
+                    rich_style = utils.RichTextStyle.get_style_for("stimulus", msg_simplified_type)
+                    lines.append(
+                        f"[{rich_style}][underline]{msg_simplified_actor}[/] --> [{rich_style}][underline]{self.name}[/]: [{msg_simplified_type}] \n{msg_simplified_content}[/]"
+                    )
+                else:
+                    # Plain text formatting - clean and readable
+                    lines.append(f"{msg_simplified_actor} --> {self.name}: [{msg_simplified_type}] {msg_simplified_content}")
             else:
                 lines.append(f"{role}: {content}")
 
@@ -1225,19 +1231,20 @@ class TinyPerson(JsonSerializableRegistry):
                 content["action"].get("content", ""), max_length=max_content_length
             )
 
-            indent = " " * len(msg_simplified_actor) + "      > "
-            msg_simplified_content = textwrap.fill(
-                msg_simplified_content,
-                width=TinyPerson.PP_TEXT_WIDTH,
-                initial_indent=indent,
-                subsequent_indent=indent,
-            )
-
-            #
-            # Using rich for formatting. Let's make things as readable as possible!
-            #
-            rich_style = utils.RichTextStyle.get_style_for("action", msg_simplified_type)
-            return f"[{rich_style}][underline]{msg_simplified_actor}[/] acts: [{msg_simplified_type}] \n{msg_simplified_content}[/]"
+            if TinyPerson.rich_text_display:
+                # Rich text formatting with line wrapping and > prefixes
+                indent = " " * len(msg_simplified_actor) + "      > "
+                msg_simplified_content = textwrap.fill(
+                    msg_simplified_content,
+                    width=TinyPerson.PP_TEXT_WIDTH,
+                    initial_indent=indent,
+                    subsequent_indent=indent,
+                )
+                rich_style = utils.RichTextStyle.get_style_for("action", msg_simplified_type)
+                return f"[{rich_style}][underline]{msg_simplified_actor}[/] acts: [{msg_simplified_type}] \n{msg_simplified_content}[/]"
+            else:
+                # Plain text formatting - clean and readable
+                return f"{msg_simplified_actor} acts: [{msg_simplified_type}] {msg_simplified_content}"
         
         else:
             return f"{role}: {content}"
