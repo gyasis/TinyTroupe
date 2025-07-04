@@ -57,9 +57,18 @@ class CEOInterruptEvent(Event):
     override_context: bool = True
     resume_action: str = "continue"  # "continue", "steer", "end"
     
-    def __post_init__(self):
-        self.event_type = EventType.CEO_INTERRUPT
-        self.priority = 100  # Highest priority
+    def __init__(self, message: str = "", override_context: bool = True, resume_action: str = "continue", **kwargs):
+        # Initialize parent with CEO interrupt event type
+        super().__init__(
+            event_type=EventType.CEO_INTERRUPT,
+            priority=100,  # Highest priority
+            **kwargs
+        )
+        self.message = message
+        self.override_context = override_context
+        self.resume_action = resume_action
+        
+        # Update data dict
         self.data.update({
             "message": self.message,
             "override_context": self.override_context,
