@@ -243,26 +243,61 @@ class TinyPerson(JsonSerializableRegistry):
         self._configuration["name"] = self.name
 
 
-    def generate_agent_system_prompt(self):
+    def generate_agent_system_prompt(self, current_round=None, total_rounds=None):
+        """
+        Generates the system prompt for the agent.
+        
+        Args:
+            current_round (int, optional): Current simulation round number
+            total_rounds (int, optional): Total number of simulation rounds
+        """
         with open(self._prompt_template_path, "r") as f:
             agent_prompt_template = f.read()
 
-        # let's operate on top of a copy of the configuration, because we'll need to add more variables, etc.
+        # Start with a copy of the configuration to preserve agent state
         template_variables = self._configuration.copy()    
 
-        # Prepare additional action definitions and constraints
+        # Prepare action-related prompts
         actions_definitions_prompt = ""
         actions_constraints_prompt = ""
         for faculty in self._mental_faculties:
             actions_definitions_prompt += f"{faculty.actions_definitions_prompt()}\n"
             actions_constraints_prompt += f"{faculty.actions_constraints_prompt()}\n"
-        
-        # Make the additional prompt pieces available to the template. 
-        # Identation here is to align with the text structure in the template.
-        template_variables['actions_definitions_prompt'] = textwrap.indent(actions_definitions_prompt.strip(), "  ")
-        template_variables['actions_constraints_prompt'] = textwrap.indent(actions_constraints_prompt.strip(), "  ")
 
-        # RAI prompt components, if requested
+        # Load goal completion instructions
+        goal_completion_instructions_path = os.path.join(os.path.dirname(__file__), "prompts/goal_completion.mustache")
+        if os.path.exists(goal_completion_instructions_path):
+            with open(goal_completion_instructions_path, "r") as f:
+                goal_completion_instructions = f.read()
+        else:
+            goal_completion_instructions = ""
+
+        # Add all prompt components with proper indentation
+        template_variables["actions_definitions_prompt"] = textwrap.indent(actions_definitions_prompt.strip(), "  ")
+        template_variables["actions_constraints_prompt"] = textwrap.indent(actions_constraints_prompt.strip(), "  ")
+        template_variables["goal_completion_instructions"] = textwrap.indent(goal_completion_instructions.strip(), "  ")
+
+        # Add round information and progress calculations
+        if current_round is not None and total_rounds is not None:
+            template_variables["current_round"] = current_round
+            template_variables["total_rounds"] = total_rounds
+            
+            # Calculate progress percentage
+            progress = (current_round / total_rounds) * 100
+            template_variables["progress_percentage"] = f"{progress:.1f}"
+            
+            # Determine progress stage
+            if progress < 25:
+                stage = "in the early stages"
+            elif progress < 50:
+                stage = "approaching the midpoint"
+            elif progress < 75:
+                stage = "well past the halfway point"
+            else:
+                stage = "in the final stages"
+            template_variables["progress_stage"] = stage
+
+        # Add RAI prompt components if enabled
         template_variables = utils.add_rai_template_variables_if_enabled(template_variables)
 
         return chevron.render(agent_prompt_template, template_variables)
@@ -409,98 +444,84 @@ class TinyPerson(JsonSerializableRegistry):
         return self
 
     @transactional
-    def act(
-        self,
-        until_done=True,
-        n=None,
-        return_actions=False,
-        max_content_length=default["max_content_display_length"],
-    ):
+    def act(self, until_done=True, n=None, return_actions=False,
+            max_content_length=default["max_content_display_length"],
+            current_round=None, total_rounds=None):
         """
         Acts in the environment and updates its internal cognitive state.
         Either acts until the agent is done and needs additional stimuli, or acts a fixed number of times,
         but not both.
 
         Args:
-            until_done (bool): Whether to keep acting until the agent is done and needs additional stimuli.
-            n (int): The number of actions to perform. Defaults to None.
-            return_actions (bool): Whether to return the actions or not. Defaults to False.
+            until_done (bool): If True, acts until done
+            n (int, optional): Fixed number of actions to take
+            return_actions (bool): Whether to return actions
+            max_content_length (int): Maximum content length to display
+            current_round (int, optional): Current simulation round number
+            total_rounds (int, optional): Total number of simulation rounds
         """
-
-        # either act until done or act a fixed number of times, but not both
         assert not (until_done and n is not None)
+
         if n is not None:
             assert n < TinyPerson.MAX_ACTIONS_BEFORE_DONE
 
         contents = []
 
-        # A separate function to run before each action, which is not meant to be repeated in case of errors.
         def aux_pre_act():
-            # TODO maybe we don't need this at all anymore?
-            #
-            # A quick thought before the action. This seems to help with better model responses, perhaps because
-            # it interleaves user with assistant messages.
-            pass # self.think("I will now think, reflect and act a bit, and then issue DONE.")        
+            pass
 
-        # Aux function to perform exactly one action.
-        # Occasionally, the model will return JSON missing important keys, so we just ask it to try again
         @repeat_on_error(retries=5, exceptions=[KeyError])
         def aux_act_once():
-            role, content = self._produce_message()
+            role, content = self._produce_message(
+                max_content_length=max_content_length,
+                current_round=current_round,
+                total_rounds=total_rounds
+            )
 
             cognitive_state = content["cognitive_state"]
-
-
             action = content['action']
             logger.debug(f"{self.name}'s action: {action}")
 
-            goals = cognitive_state['goals']
-            attention = cognitive_state['attention']
-            emotions = cognitive_state['emotions']
+            # Store memory and update cognitive state
+            self.store_in_memory({
+                'role': role,
+                'content': content,
+                'type': 'action',
+                'simulation_timestamp': self.iso_datetime()
+            })
 
-            self.store_in_memory({'role': role, 'content': content, 
-                                  'type': 'action', 
-                                  'simulation_timestamp': self.iso_datetime()})
+            # Update cognitive state components
+            self._update_cognitive_state(
+                goals=cognitive_state['goals'],
+                attention=cognitive_state['attention'],
+                emotions=cognitive_state['emotions']
+            )
 
+            # Store action in buffer
             self._actions_buffer.append(action)
-            self._update_cognitive_state(goals=cognitive_state['goals'],
-                                        attention=cognitive_state['attention'],
-                                        emotions=cognitive_state['emotions'])
-            
-            contents.append(content)          
+
+            # Display communication if enabled
             if TinyPerson.communication_display:
-                self._display_communication(role=role, content=content, kind='action', simplified=True, max_content_length=max_content_length)
-            
-            #
-            # Some actions induce an immediate stimulus or other side-effects. We need to process them here, by means of the mental faculties.
-            #
+                self._display_communication(
+                    role=role,
+                    content=content,
+                    kind='action',
+                    simplified=True,
+                    max_content_length=max_content_length
+                )
+
+            # Process action through mental faculties
             for faculty in self._mental_faculties:
-                faculty.process_action(self, action)             
-            
+                faculty.process_action(self, action)
 
-        #
-        # How to proceed with a sequence of actions.
-        #
+            contents.append(content)
 
-        ##### Option 1: run N actions ######
-        if n is not None:
-            for i in range(n):
-                aux_pre_act()
-                aux_act_once()
-
-        ##### Option 2: run until DONE ######
-        elif until_done:
-            while (len(contents) == 0) or (
-                not contents[-1]["action"]["type"] == "DONE"
-            ):
-
-
-                # check if the agent is acting without ever stopping
+        if until_done:
+            while True:
                 if len(contents) > TinyPerson.MAX_ACTIONS_BEFORE_DONE:
                     logger.warning(f"[{self.name}] Agent {self.name} is acting without ever stopping. This may be a bug. Let's stop it here anyway.")
                     break
-                if len(contents) > 4: # just some minimum number of actions to check for repetition, could be anything >= 3
-                    # if the last three actions were the same, then we are probably in a loop
+                if len(contents) > 4:
                     if contents[-1]['action'] == contents[-2]['action'] == contents[-3]['action']:
                         logger.warning(f"[{self.name}] Agent {self.name} is acting in a loop. This may be a bug. Let's stop it here anyway.")
                         break
@@ -508,10 +529,63 @@ class TinyPerson(JsonSerializableRegistry):
                 aux_pre_act()
                 aux_act_once()
 
-        if return_actions:
-            return contents
+                # Check if the agent is done
+                if contents[-1]["action"]["type"] == "DONE":
+                    break
+        else:
+            for _ in range(n):
+                aux_pre_act()
+                aux_act_once()
+
+        return contents
 
     @transactional
+    def _produce_message(self, max_content_length=default["max_content_display_length"],
+                        current_round=None, total_rounds=None):
+        """
+        Produces the next message in the conversation.
+        
+        Args:
+            max_content_length (int): Maximum content length to display
+            current_round (int, optional): Current simulation round number
+            total_rounds (int, optional): Total number of simulation rounds
+        """
+        self.reset_prompt()
+
+        # Generate system prompt with round information
+        system_prompt = self.generate_agent_system_prompt(
+            current_round=current_round,
+            total_rounds=total_rounds
+        )
+
+        messages = [
+            {"role": "system", "content": system_prompt}
+        ]
+
+        if len(self.current_messages) > 0:
+            for msg in self.current_messages:
+                messages.append({"role": msg["role"], "content": json.dumps(msg["content"])})
+
+        logger.debug(f"[{self.name}] Sending messages to OpenAI API")
+        logger.debug(f"[{self.name}] Last interaction: {messages[-1] if messages else 'None'}")
+
+        next_message = openai_utils.client().send_message(messages, response_format=CognitiveActionModel)
+
+        if 'content' not in next_message:
+            logger.warning(f"Model response does not contain 'content' key: {next_message}")
+            raise ValueError(f"Model response does not contain 'content' key: {next_message}")
+
+        # Parse the content as JSON if it's a string
+        content = next_message["content"]
+        if isinstance(content, str):
+            try:
+                content = utils.extract_json(content)
+            except json.JSONDecodeError:
+                logger.warning(f"Failed to parse content as JSON: {content}")
+                raise ValueError(f"Failed to parse content as JSON: {content}")
+
+        return next_message["role"], content
+
     def listen(
         self,
         speech,
@@ -771,27 +845,6 @@ class TinyPerson(JsonSerializableRegistry):
         """
         self._accessible_agents = []
         self._configuration["currently_accessible_agents"] = []
-
-    @transactional
-    def _produce_message(self):
-        # logger.debug(f"Current messages: {self.current_messages}")
-
-        # ensure we have the latest prompt (initial system message + selected messages from memory)
-        self.reset_prompt()
-
-        messages = [
-            {"role": msg["role"], "content": json.dumps(msg["content"])}
-            for msg in self.current_messages
-        ]
-
-        logger.debug(f"[{self.name}] Sending messages to OpenAI API")
-        logger.debug(f"[{self.name}] Last interaction: {messages[-1]}")
-
-        next_message = openai_utils.client().send_message(messages, response_format=CognitiveActionModel)
-
-        logger.debug(f"[{self.name}] Received message: {next_message}")
-
-        return next_message["role"], utils.extract_json(next_message["content"])
 
     ###########################################################
     # Internal cognitive state changes

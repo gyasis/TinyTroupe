@@ -74,27 +74,25 @@ class TinyWorld:
     # Simulation control methods
     #######################################################################
     @transactional
-    def _step(self, timedelta_per_step=None):
+    def _step(self, timedelta_per_step=None, current_round=None, total_rounds=None):
         """
-        Performs a single step in the environment. This default implementation
-        simply calls makes all agents in the environment act and properly
-        handle the resulting actions. Subclasses might override this method to implement 
-        different policies.
+        Performs a single step in the environment.
+        
+        Args:
+            timedelta_per_step: Time increment per step
+            current_round: Current simulation round number
+            total_rounds: Total number of simulation rounds
         """
-        # increase current datetime if timedelta is given. This must happen before
-        # any other simulation updates, to make sure that the agents are acting
-        # in the correct time, particularly if only one step is being run.
         self._advance_datetime(timedelta_per_step)
 
-        # agents can act
         agents_actions = {}
         for agent in self.agents:
             logger.debug(f"[{self.name}] Agent {name_or_empty(agent)} is acting.")
-            actions = agent.act(return_actions=True)
+            actions = agent.act(return_actions=True, current_round=current_round, total_rounds=total_rounds)
             agents_actions[agent.name] = actions
 
             self._handle_actions(agent, agent.pop_latest_actions())
-        
+
         return agents_actions
 
     def _advance_datetime(self, timedelta):
@@ -113,15 +111,6 @@ class TinyWorld:
     def run(self, steps: int, timedelta_per_step=None, return_actions=False):
         """
         Runs the environment for a given number of steps.
-
-        Args:
-            steps (int): The number of steps to run the environment for.
-            timedelta_per_step (timedelta, optional): The time interval between steps. Defaults to None.
-            return_actions (bool, optional): If True, returns the actions taken by the agents. Defaults to False.
-        
-        Returns:
-            list: A list of actions taken by the agents over time, if return_actions is True. The list has this format:
-                  [{agent_name: [action_1, action_2, ...]}, {agent_name_2: [action_1, action_2, ...]}, ...]
         """
         agents_actions_over_time = []
         for i in range(steps):
@@ -130,9 +119,9 @@ class TinyWorld:
             if TinyWorld.communication_display:
                 self._display_communication(cur_step=i+1, total_steps=steps, kind='step', timedelta_per_step=timedelta_per_step)
 
-            agents_actions = self._step(timedelta_per_step=timedelta_per_step)
+            agents_actions = self._step(timedelta_per_step=timedelta_per_step, current_round=i+1, total_rounds=steps)
             agents_actions_over_time.append(agents_actions)
-        
+
         if return_actions:
             return agents_actions_over_time
     

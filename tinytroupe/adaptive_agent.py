@@ -155,6 +155,12 @@ class AdaptiveTinyPerson(TinyPerson):
         # Enhance configuration for context
         enhanced_config = self._enhance_configuration_for_context(context)
         
+        # Add environment hint to configuration if it contains meeting directives
+        if environment_hint and ("MEETING WRAP-UP" in environment_hint or "MEETING CONCLUSION" in environment_hint):
+            enhanced_config["meeting_directive"] = environment_hint
+            enhanced_config["is_final_round"] = "MEETING CONCLUSION" in environment_hint
+            enhanced_config["is_wrap_up_round"] = "MEETING WRAP-UP" in environment_hint
+        
         # Generate prompt using parent class method with enhanced config
         original_config = self._configuration
         self._configuration = enhanced_config
@@ -192,27 +198,63 @@ class AdaptiveTinyPerson(TinyPerson):
         # Call parent listen method
         super().listen(enhanced_content, source)
     
-    def act(self, environment_hint: str = None, max_content_length: int = None) -> bool:
+    def act(self, until_done=True, n=None, return_actions=False,
+            max_content_length=None, current_round=None, total_rounds=None):
         """Override act to track rounds and use adaptive prompting."""
         
         # Increment round count
         self.round_count += 1
         
-        # Generate context-aware prompt
-        if self.adaptive_mode_enabled:
-            # Store original prompt generation
-            original_generate_prompt = self._generate_prompt
+        # Store environment context for adaptive behavior
+        environment_hint = f"Round {current_round}/{total_rounds}" if current_round and total_rounds else None
+        
+        # Check if this is a business meeting nearing completion
+        if (self.adaptive_mode_enabled and current_round and total_rounds and 
+            self.context_detector.current_context == ContextType.BUSINESS_MEETING):
             
-            # Use our enhanced prompt generation
-            self._generate_prompt = lambda: self._generate_prompt(environment_hint)
+            if current_round == total_rounds - 1:  # Second to last round
+                # Add meeting wrap-up warning
+                environment_hint += " - MEETING WRAP-UP: This meeting has 1 minute left. Ask everyone for final considerations before we conclude."
+                print(f"DEBUG: {self.name} Round {current_round}/{total_rounds} - Adding wrap-up prompt")
+            elif current_round == total_rounds:  # Final round
+                # Add meeting conclusion prompt  
+                environment_hint += " - MEETING CONCLUSION: Provide a meeting recap with key decisions, action items, and next steps. Be specific about who does what."
+                print(f"DEBUG: {self.name} Round {current_round}/{total_rounds} - Adding conclusion prompt")
+        
+        # Generate context-aware prompt
+        if self.adaptive_mode_enabled and environment_hint:
+            # Temporarily update the prompt with meeting directives
+            original_prompt_path = self._prompt_template_path
+            
+            # Force regeneration of system message with environment hints
+            if "MEETING WRAP-UP" in environment_hint or "MEETING CONCLUSION" in environment_hint:
+                # Add the directive to current context
+                if "project manager" in self.get("occupation", "").lower():
+                    # Project managers take lead in wrap-up
+                    self._configuration["take_meeting_lead"] = True
+                
+                # Force prompt regeneration with new context
+                self._configuration["meeting_directive"] = environment_hint
+                self._configuration["is_final_round"] = "MEETING CONCLUSION" in environment_hint
+                self._configuration["is_wrap_up_round"] = "MEETING WRAP-UP" in environment_hint
+                self.reset_prompt()  # This regenerates the system message
         
         try:
-            # Call parent act method
-            result = super().act(environment_hint, max_content_length)
+            # Call parent act method with correct signature
+            result = super().act(until_done=until_done, n=n, return_actions=return_actions,
+                               max_content_length=max_content_length, current_round=current_round, 
+                               total_rounds=total_rounds)
         finally:
-            # Restore original prompt generation if we modified it
-            if self.adaptive_mode_enabled and 'original_generate_prompt' in locals():
-                self._generate_prompt = original_generate_prompt
+            # Clean up any temporary configuration changes
+            if self.adaptive_mode_enabled and environment_hint:
+                if "MEETING WRAP-UP" in environment_hint or "MEETING CONCLUSION" in environment_hint:
+                    # Remove temporary meeting directives
+                    self._configuration.pop("meeting_directive", None)
+                    self._configuration.pop("is_final_round", None)
+                    self._configuration.pop("is_wrap_up_round", None)
+                    self._configuration.pop("take_meeting_lead", None)
+                    # Regenerate clean prompt for next round
+                    self.reset_prompt()
         
         return result
     
@@ -278,12 +320,23 @@ class AdaptiveTinyPerson(TinyPerson):
 
 def create_adaptive_agent(name: str, occupation: str, personality_traits: List[str] = None, 
                          professional_interests: List[str] = None, personal_interests: List[str] = None,
-                         skills: List[str] = None, **kwargs) -> AdaptiveTinyPerson:
+                         skills: List[str] = None, years_experience: str = None, **kwargs) -> AdaptiveTinyPerson:
     """
     Create an adaptive agent with enhanced context awareness.
     
     This function maintains compatibility with existing TinyTroupe agent creation
     while adding context-aware behavior for technical and business discussions.
+    
+    Args:
+        name: Agent name
+        occupation: Job title and role description
+        personality_traits: List of personality characteristics
+        professional_interests: List of work-related interests
+        personal_interests: List of personal hobbies and interests
+        skills: List of technical and professional skills
+        years_experience: Experience level (e.g., "10+ years", "5-8 years")
+                         If not provided, will be inferred from occupation title
+        **kwargs: Additional parameters passed to TinyPerson constructor
     """
     
     agent = AdaptiveTinyPerson(name=name, **kwargs)
@@ -302,5 +355,42 @@ def create_adaptive_agent(name: str, occupation: str, personality_traits: List[s
     
     if skills:
         agent.define_several("skills", [{"skill": skill} for skill in skills])
+    
+    # Set experience information for adaptive prompts
+    if years_experience:
+        agent.define("years_experience", years_experience)
+        # Also infer seniority level from occupation and experience
+        occupation_lower = occupation.lower()
+        if "senior" in occupation_lower or "lead" in occupation_lower or "principal" in occupation_lower:
+            agent.define("seniority_level", "Senior")
+        elif "junior" in occupation_lower or "associate" in occupation_lower:
+            agent.define("seniority_level", "Junior")
+        elif "director" in occupation_lower or "manager" in occupation_lower or "head" in occupation_lower:
+            agent.define("seniority_level", "Leadership")
+        elif "chief" in occupation_lower or "cto" in occupation_lower or "ceo" in occupation_lower:
+            agent.define("seniority_level", "Executive")
+        else:
+            agent.define("seniority_level", "Mid-level")
+    else:
+        # Infer from occupation if no experience provided
+        occupation_lower = occupation.lower()
+        if "senior" in occupation_lower:
+            agent.define("years_experience", "8+ years")
+            agent.define("seniority_level", "Senior")
+        elif "junior" in occupation_lower:
+            agent.define("years_experience", "1-3 years") 
+            agent.define("seniority_level", "Junior")
+        elif "lead" in occupation_lower or "principal" in occupation_lower:
+            agent.define("years_experience", "10+ years")
+            agent.define("seniority_level", "Senior")
+        elif "director" in occupation_lower or "manager" in occupation_lower:
+            agent.define("years_experience", "12+ years")
+            agent.define("seniority_level", "Leadership")
+        elif "chief" in occupation_lower or "cto" in occupation_lower:
+            agent.define("years_experience", "15+ years")
+            agent.define("seniority_level", "Executive")
+        else:
+            agent.define("years_experience", "5+ years")
+            agent.define("seniority_level", "Mid-level")
     
     return agent

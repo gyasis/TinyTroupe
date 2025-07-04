@@ -1,0 +1,69 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Generate a comprehensive Prompt Requirements Document (PRD) as a 'prd.md' file for my project. Follow these steps:
+
+1. START WITH INFORMATION GATHERING:
+   - Ask me clarifying questions about my project ONE SECTION AT A TIME
+   - For each section, if my answer is vague or incomplete, ask follow-up questions
+   - Continue until you have sufficient detail before moving to the next section
+
+2. PROJECT_DETAILS (Ask about):
+   - Name and description
+   - Technical stack and architecture
+   - Development timeline and constraints
+
+3. CURRENT_WORKFLOW (Ask about):
+   - Development methodology
+   - Current pain points with AI collaboration
+   - Existing documentation and prompt management
+   - How requirements are currently communicated
+
+4. SPECIFIC_NEEDS (Ask about):
+   - Types of AI interactions most common in our workflow
+   - Areas where AI assistance has been most/least effective
+   - Particular challenges with maintaining context
+   - Any specific guardrails needed for our domain
+
+5. AFTER GATHERING INFORMATION:
+   - Summarize what you've learned and confirm accuracy
+   - Present a draft outline of the PRD structure
+   - Ask if any sections need more emphasis or detail
+
+6. CREATE THE FULL PRD WITH:
+   a. GUIDELINES section: 
+      - Project context and technical foundations
+      - Architecture and design principles
+      - Coding standards and conventions
+
+   b. GUIDANCE section:
+      - Templated prompts for different scenarios
+      - Context management strategies
+      - Best practices for prompt crafting
+
+   c. GUARDRAILS section:
+      - Quality checkpoints for AI outputs
+      - Validation criteria and verification methods
+      - Safety measures and constraints
+
+7. STRUCTURE AND FORMAT:
+   - Use YAML blocks for machine-readable configurations
+   - Include Markdown sections for human readability
+   - Add Mermaid diagrams for workflow visualization
+   - Use code blocks for all technical content
+   - Include emoji indicators for section types
+
+8. IF ANY PART IS UNCLEAR:
+   - Create a semi-complete template
+   - Highlight areas needing more information
+   - Ask specific questions to fill in the gaps
+   - Iterate until the section is complete
+
+9. IMPLEMENTATION GUIDANCE:
+   - Provide step-by-step instructions for adopting the PRD
+   - Include methods for evolving the document over time
+   - Suggest tools for integration with development environments
+
+Remember to maintain a conversational tone throughout the process and explain why certain information is important for creating an effective PRD if there are include docs in the project try to read everything to undertand how everything is set for a proper scaffold and context. Never, assume, ask claryfiying quesionts if needed, the user expects a conversation if you are not sure about something. 

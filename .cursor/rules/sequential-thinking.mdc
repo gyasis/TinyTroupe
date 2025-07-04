@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Sequential Thinking Process
+
+## AI Model Usage Notice
+As an AI model, I have direct access to a *server-sequential-thinking* that provids a *sequentialthinking* function and MUST utilize it when solving complex problems or requsted by user. The function when filled with parameters will do this:
+
+1. Evaluate the current problem state
+2. Determine appropriate parameter values based on my analysis
+3. Submit these parameters through the function
+4. Use the function's structured approach to maintain organized thought chains
+5. Continue or branch thinking based on intermediate results
+6. give a final solution to task or problem working step by step
+
+
+The parameters I provide will shape the problem-solving approach and ensure thorough analysis.
+
+
+### Required Parameters
+- `thought*`: Current thinking step content
+- `thoughtNumber*`: Sequential position in thought chain
+- `totalThoughts*`: Estimated thoughts needed
+- `nextThoughtNeeded*`: Boolean indicating if more analysis required
+
+### Optional Parameters
+- `branchId`: Identifier for parallel thought paths
+- `isRevision`: Boolean marking thought revisions
+- `revisesThought`: Reference to thought being revised
+- `branchFromThought`: Origin point for new thought branches
+- `needsMoreThoughts`: Boolean for extending analysis
+
+example of parameters used; 
+    "thought": "Analyzing the file structure to identify potential duplicate databases",
+    "thoughtNumber": 1,
+    "totalThoughts": 4,  # Initial estimate
+    "nextThoughtNeeded": True,
+    "isRevision": False,
+    "branchId": None,
+    "needsMoreThoughts": False
+
+### When to Apply
+1. Complex problem decomposition
+2. Multi-step solution planning
+3. Iterative design processes
+4. Uncertain scope scenarios
+5. Context-dependent analysis
+6. Information filtering tasks
