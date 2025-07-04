@@ -511,9 +511,19 @@ tinytroupe/
 
 # MAJOR UPDATE: 2025-07-04 Development Session Complete ✅
 
-## Implementation Status: ALL OBJECTIVES ACHIEVED
+## Implementation Status: EXTRACTION PARADIGM DISCOVERED
 
-The comprehensive development work outlined in this document has been **SUCCESSFULLY COMPLETED** during the 2025-07-04 session. All planned improvements have been implemented and validated.
+The comprehensive development work outlined in this document has been **SUCCESSFULLY COMPLETED** during the 2025-07-04 session. However, we discovered that TinyTroupe's core paradigm is **EXTRACTION-BASED** rather than wrap-up logic based.
+
+### 🎯 KEY INSIGHT: Extraction is the Core Paradigm
+
+TinyTroupe is designed to:
+1. Let agents have **natural conversations** without forced structure
+2. Use **ResultsExtractor** to extract structured data afterward
+3. Support **multiple extraction objectives** from the same simulation
+4. Generate **JSON output** perfect for downstream processing
+
+This is fundamentally different from trying to force agents into artificial wrap-up behaviors!
 
 ### ✅ COMPLETED: Hybrid Architecture Implementation
 - **Orchestrator Pattern**: Project Manager (Adaptive) manages meeting flow
@@ -611,6 +621,64 @@ The TinyTroupe agent simulation system has been transformed from a basic interac
 
 ---
 
+## Extraction Best Practices for Meetings
+
+### 1. Let Conversations Flow Naturally
+```python
+# Good: Natural conversation starter
+facilitator.listen("Let's discuss our blockchain architecture approach.")
+world.run(4)  # Let agents talk freely
+
+# Bad: Forcing structure
+facilitator.listen("Everyone must provide exactly 3 bullet points...")
+```
+
+### 2. Extract Multiple Perspectives
+```python
+# Extract technical decisions
+tech_results = extractor.extract_results_from_world(
+    world, 
+    extraction_objective="Technical decisions and architecture",
+    fields=["technologies", "architecture", "technical_risks"]
+)
+
+# Extract business requirements
+business_results = extractor.extract_results_from_world(
+    world,
+    extraction_objective="Business requirements and constraints", 
+    fields=["requirements", "budget", "timeline"]
+)
+
+# Extract action items
+action_results = extractor.extract_results_from_world(
+    world,
+    extraction_objective="Action items with assigned owners",
+    fields=["tasks", "owners", "deadlines"]
+)
+```
+
+### 3. Use Field Hints for Better Results
+```python
+fields_hints = {
+    "technical_decisions": "Specific technology choices (platforms, languages, frameworks)",
+    "action_items": "Tasks with assigned owner names and specific deadlines",
+    "risks": "Technical, regulatory, or business risks with mitigation strategies"
+}
+```
+
+### 4. Save and Process Results
+```python
+# Save as JSON
+extractor.save_as_json("meeting_results.json")
+
+# Process results programmatically
+if "action_items" in results:
+    for item in results["action_items"]:
+        create_jira_ticket(item)  # Example integration
+```
+
+---
+
 *Original document: Agent actions research and analysis*  
-*Major update: 2025-07-04 - Comprehensive development session completed*  
-*Status: Implementation complete and production ready*
+*Major update: 2025-07-04 - Discovered extraction paradigm*  
+*Status: Enhanced with extraction-based approach*

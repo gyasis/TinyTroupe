@@ -9,8 +9,6 @@ from tinytroupe.adaptive_agent import create_adaptive_agent  # Enhanced agents f
 from tinytroupe.environment import TinyWorld, TinySocialNetwork
 from tinytroupe.factory import TinyPersonFactory
 from tinytroupe.extraction import default_extractor as extractor
-from tinytroupe.extraction import ResultsReducer
-import tinytroupe.control as control
 
 # ENABLE CLEAN OUTPUT MODE
 TinyPerson.rich_text_display = False  # No Rich text formatting
@@ -270,31 +268,71 @@ print("\n" + "="*80)
 print("MEETING SIMULATION - HYBRID ARCHITECTURE WITH CLEAN OUTPUT")
 print("="*80)
 
-# Run the simulation with 3 rounds  
-# Rounds 2 and 3 should trigger wrap-up behavior in adaptive agents
-world.run(3, timedelta_per_step=timedelta(minutes=5))
+# Run the simulation with natural conversation flow
+world.run(4, timedelta_per_step=timedelta(minutes=5))
 
 print("\n" + "="*80)
-print("HYBRID ARCHITECTURE ANALYSIS")
+print("EXTRACTING STRUCTURED RESULTS FROM MEETING")
 print("="*80)
 
-print("\n--- Architecture Performance ---")
-print("🏗️ Orchestrator (Emily): Managed meeting flow and facilitation")
-print("🧠 Domain Experts (James, Michael): Provided authoritative expertise")  
-print("💬 Regular Participants (Lisa, Sarah, Alex): Contributed naturally")
+# Extract technical decisions and action items
+print("\n--- Extracting Meeting Results ---")
+meeting_results = extractor.extract_results_from_world(
+    world,
+    extraction_objective="Extract key technical decisions, implementation strategies, compliance requirements, and action items from the healthcare blockchain meeting discussion",
+    fields=[
+        "technical_decisions",
+        "blockchain_platform_choice", 
+        "fhir_integration_approach",
+        "hipaa_compliance_strategy",
+        "action_items_with_owners",
+        "timeline_and_milestones",
+        "risks_and_concerns",
+        "next_steps"
+    ],
+    fields_hints={
+        "technical_decisions": "Specific technology choices made (blockchain platform, consensus mechanism, architecture)",
+        "blockchain_platform_choice": "Which blockchain platform was recommended and why",
+        "fhir_integration_approach": "How FHIR data will be integrated with blockchain",
+        "hipaa_compliance_strategy": "Specific HIPAA compliance measures and privacy protections discussed",
+        "action_items_with_owners": "Specific tasks assigned to team members with deadlines",
+        "timeline_and_milestones": "Project timeline with key milestones and deliverables",
+        "risks_and_concerns": "Technical, regulatory, or implementation risks identified",
+        "next_steps": "Immediate next actions and follow-up meetings"
+    },
+    verbose=True
+)
 
-print("\n--- Clean Output Benefits ---")
-print("✅ No annoying > line breaks")
-print("✅ No Rich text markup clutter")
-print("✅ No debug noise") 
-print("✅ Natural conversation flow")
+print("\n--- Saving Extraction Results ---")
+extractor.save_as_json("../data/extractions/healthcare_blockchain_meeting.json")
 
-print("\n--- Meeting Intelligence Features ---")
-print("🔄 Meeting broadcasting: All agents hear all conversations")
-print("🧠 Context detection: Business meeting behavior enabled")
-print("📝 Wrap-up logic: Automatic conclusions in final rounds")
-print("💭 RECALL enhancement: Memory checks prevent circular conversations")
+print("\n--- Meeting Results Summary ---")
+if meeting_results:
+    for field, content in meeting_results.items():
+        print(f"\n📋 {field.replace('_', ' ').title()}:")
+        if isinstance(content, list):
+            for item in content:
+                print(f"  • {item}")
+        else:
+            print(f"  {content}")
 
-print("\n=== HYBRID ARCHITECTURE DEMONSTRATION COMPLETE ===")
+print("\n" + "="*80)
+print("EXTRACTION-BASED APPROACH ANALYSIS")
+print("="*80)
+
+print("\n--- Why Extraction is Superior ---")
+print("✅ Natural conversations without forced structure")
+print("✅ Agents focus on domain expertise, not meeting management")
+print("✅ Structured results extracted post-conversation")
+print("✅ Multiple extraction objectives possible from same simulation")
+print("✅ JSON output perfect for downstream processing")
+
+print("\n--- Hybrid Architecture Benefits ---")
+print("🏗️ Orchestrator (Emily): Facilitates discussion naturally")
+print("🧠 Domain Experts (James, Michael): Provide authoritative expertise")  
+print("💬 Regular Participants (Lisa, Sarah, Alex): Contribute freely")
+print("📊 Extraction System: Captures structured insights automatically")
+
+print("\n=== EXTRACTION-BASED MEETING SYSTEM COMPLETE ===")
 
 # %%

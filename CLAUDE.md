@@ -243,10 +243,42 @@ Intelligent context awareness for appropriate agent behavior:
 - **Interview**: Structured question-answer patterns
 
 ### Meeting Intelligence Features
-1. **Wrap-up Logic**: Automatic meeting conclusions in final rounds
-2. **Cross-Agent Communication**: All participants hear all conversations
+1. **Natural Conversations**: Agents discuss freely without forced structure
+2. **Cross-Agent Communication**: All participants hear all conversations  
 3. **Memory Enhancement**: RECALL checks prevent repeated questions
 4. **Expert Authority**: Domain specialists assert expertise appropriately
+5. **Post-Processing Extraction**: Extract structured insights afterward
+
+### Extraction System
+TinyTroupe's core paradigm for getting structured results from simulations:
+
+```python
+# 1. Let agents have natural conversations
+world.run(4)  # No forced wrap-up logic needed
+
+# 2. Extract structured results afterward
+results = default_extractor.extract_results_from_world(
+    world,
+    extraction_objective="Extract key technical decisions and action items",
+    fields=["decisions", "action_items", "risks", "timeline"],
+    fields_hints={
+        "decisions": "Technical choices made during the discussion",
+        "action_items": "Specific tasks assigned with owners",
+        "risks": "Identified risks and concerns",
+        "timeline": "Project milestones and deadlines"
+    },
+    verbose=True
+)
+
+# 3. Save results as JSON
+default_extractor.save_as_json("meeting_results.json")
+```
+
+**Benefits:**
+- Natural conversation flow
+- Multiple extraction objectives from single simulation
+- Structured JSON output for downstream processing
+- Agents focus on domain expertise, not meeting management
 5. **Decision Forcing**: Prevents circular "let's coordinate" discussions
 
 ## Project Memory Context
