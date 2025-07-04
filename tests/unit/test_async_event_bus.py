@@ -3,6 +3,7 @@ Unit tests for async event bus functionality
 """
 
 import pytest
+import pytest_asyncio
 import asyncio
 import logging
 from datetime import datetime
@@ -23,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def event_bus():
     """Create a fresh event bus for each test"""
     bus = AsyncEventBus()
@@ -32,7 +33,7 @@ async def event_bus():
     await bus.stop()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def running_event_bus():
     """Create and start event bus, then cleanup"""
     await shutdown_event_bus()  # Ensure clean state

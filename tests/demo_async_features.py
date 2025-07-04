@@ -271,6 +271,106 @@ async def demo_integration_scenario():
     return agents
 
 
+async def demo_async_adaptive_agents():
+    """Demonstrate AsyncAdaptiveTinyPerson functionality"""
+    print("\n🧠 DEMO: AsyncAdaptiveTinyPerson")
+    print("=" * 50)
+    
+    from tinytroupe.async_adaptive_agent import create_async_adaptive_agent
+    
+    # Create mock async adaptive agents for demo
+    class MockAsyncAdaptiveAgent:
+        def __init__(self, name, occupation):
+            self.name = name
+            self.occupation = occupation
+            self.conversation_history = []
+            self.round_count = 0
+            self.adaptive_mode_enabled = True
+            self._async_lock = asyncio.Lock()
+            
+        async def async_listen(self, content):
+            self.conversation_history.append(content)
+            return f"[{self.name}] {self.occupation} heard: '{content}'"
+            
+        async def async_act(self, **kwargs):
+            self.round_count += 1
+            return f"[{self.name}] {self.occupation} acting with adaptive context (round {self.round_count})"
+            
+        def get_current_context(self):
+            if "compliance" in self.occupation.lower():
+                return "BUSINESS_MEETING"
+            elif "developer" in self.occupation.lower():
+                return "TECHNICAL_DISCUSSION"
+            else:
+                return "BUSINESS_MEETING"
+                
+        async def get_context_summary(self):
+            return {
+                "agent_name": self.name,
+                "agent_type": "AsyncAdaptiveTinyPerson",
+                "current_context": self.get_current_context(),
+                "conversation_rounds": self.round_count,
+                "adaptive_mode": self.adaptive_mode_enabled,
+                "recent_messages": len(self.conversation_history)
+            }
+    
+    # Create agents with different expertise
+    agents = [
+        MockAsyncAdaptiveAgent("Emily Martinez", "Project Manager"),
+        MockAsyncAdaptiveAgent("Dr. James Wilson", "CTO"),
+        MockAsyncAdaptiveAgent("Michael Thompson", "Compliance Officer"),
+        MockAsyncAdaptiveAgent("Lisa Chen", "Senior Developer")
+    ]
+    
+    print(f"👥 Created {len(agents)} async adaptive agents")
+    
+    # Test async listen with context tracking
+    print("\n🎯 Testing async listen with conversation tracking...")
+    
+    tasks = []
+    for agent in agents:
+        if "manager" in agent.occupation.lower():
+            prompt = "Let's start our healthcare blockchain meeting"
+        elif "cto" in agent.occupation.lower():
+            prompt = "I need to review the technical architecture"
+        elif "compliance" in agent.occupation.lower():
+            prompt = "We must ensure HIPAA compliance"
+        else:
+            prompt = "I can implement the required features"
+        
+        tasks.append(agent.async_listen(prompt))
+    
+    results = await asyncio.gather(*tasks)
+    for result in results:
+        print(f"  📝 {result}")
+    
+    # Test concurrent async act with adaptive behavior
+    print("\n⚡ Testing concurrent async act with adaptive behavior...")
+    
+    act_tasks = []
+    for agent in agents:
+        act_tasks.append(agent.async_act(current_round=1, total_rounds=5))
+    
+    start_time = asyncio.get_event_loop().time()
+    act_results = await asyncio.gather(*act_tasks)
+    end_time = asyncio.get_event_loop().time()
+    
+    for result in act_results:
+        print(f"  🎬 {result}")
+    
+    print(f"⏱️  Completed {len(agents)} adaptive actions in {end_time - start_time:.3f} seconds")
+    
+    # Show context summaries
+    print("\n📊 Context summaries:")
+    for agent in agents:
+        summary = await agent.get_context_summary()
+        print(f"  🔍 {agent.name}: Context={summary['current_context']}, Rounds={summary['conversation_rounds']}")
+    
+    print("✅ AsyncAdaptiveTinyPerson demo completed successfully")
+    
+    return agents
+
+
 async def main():
     """Main demo function"""
     print("🚀 TinyTroupe Async Features Demo")
@@ -284,6 +384,7 @@ async def main():
         await demo_event_bus()
         await demo_async_agents()
         await demo_ceo_interrupt()
+        await demo_async_adaptive_agents()
         await demo_integration_scenario()
         
         print("\n🎉 ALL DEMOS COMPLETED SUCCESSFULLY!")
