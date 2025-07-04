@@ -205,7 +205,7 @@ print("💬 Regular Participants: Lisa Chen (Dev, Standard) + Dr. Sarah Chen (MD
 print("🔧 Clean output mode enabled")
 
 # Create world with meeting broadcasting enabled
-world = TinyWorld("Medical Records Blockchain Project Meeting", max_additional_targets_to_display=1, is_meeting=True)
+world = TinyWorld("Medical Records Blockchain Project Meeting", max_additional_targets_to_display=6, is_meeting=True)
 world.add_agents([project_manager, head_of_technology, michael, software_developer, sarah, alex])
 
 # Make all agents able to communicate with each other
@@ -224,8 +224,9 @@ for agent in adaptive_agents:
             "Implementation Timeline and Resources"
         ],
         participant_roles=[
-            "Project Manager", "CTO", "Compliance Officer", "Software Developer", 
-            "Physician", "Blockchain Expert"
+            "Emily Martinez (Project Manager)", "Dr. James Wilson (CTO)", 
+            "Michael Thompson (Compliance Officer)", "Lisa Chen (Software Developer)", 
+            "Dr. Sarah Chen (Physician)", "Alex Rodriguez (Blockchain Expert)"
         ]
     )
 
@@ -253,7 +254,7 @@ Let's structure this meeting to:
 2. Then develop an actionable implementation plan
 3. Finally, assign clear responsibilities and next steps
 
-Dr. Sarah, as our medical expert, could you start by outlining the key clinical requirements you see for this system?
+Dr. Sarah Chen, as our medical expert, could you start by outlining the key clinical requirements you see for this system?
 """)
 
 print("\n--- Agent Profiles ---")
@@ -269,7 +270,8 @@ print("MEETING SIMULATION - HYBRID ARCHITECTURE WITH CLEAN OUTPUT")
 print("="*80)
 
 # Run the simulation with natural conversation flow
-world.run(4, timedelta_per_step=timedelta(minutes=5))
+# Emily will NOT wrap up unless total rounds >= 7 AND it's the second-to-last round
+world.run(6, timedelta_per_step=timedelta(minutes=5))
 
 print("\n" + "="*80)
 print("EXTRACTING STRUCTURED RESULTS FROM MEETING")
@@ -320,18 +322,27 @@ print("\n" + "="*80)
 print("EXTRACTION-BASED APPROACH ANALYSIS")
 print("="*80)
 
-print("\n--- Why Extraction is Superior ---")
-print("✅ Natural conversations without forced structure")
+print("\n--- Smart Wrap-Up Control Analysis ---")
+print("🎯 Emily will NOT wrap up meetings with < 7 rounds")
+print("✅ Prevents premature meeting conclusions in short discussions") 
+print("✅ Only triggers wrap-up in second-to-last round of longer meetings")
+print("✅ Maintains natural conversation flow without forced structure")
+
+print("\n--- Why Extraction + Smart Wrap-Up Control is Superior ---")
+print("✅ Natural conversations without premature wrap-up")
+print("✅ Orchestrator only concludes when appropriate (7+ rounds)")
 print("✅ Agents focus on domain expertise, not meeting management")
 print("✅ Structured results extracted post-conversation")
 print("✅ Multiple extraction objectives possible from same simulation")
 print("✅ JSON output perfect for downstream processing")
+print("✅ Simple prompt engineering solution vs complex algorithms")
 
 print("\n--- Hybrid Architecture Benefits ---")
 print("🏗️ Orchestrator (Emily): Facilitates discussion naturally")
 print("🧠 Domain Experts (James, Michael): Provide authoritative expertise")  
 print("💬 Regular Participants (Lisa, Sarah, Alex): Contribute freely")
 print("📊 Extraction System: Captures structured insights automatically")
+print("🎛️ Smart Wrap-Up Control: Only concludes longer meetings appropriately")
 
 print("\n=== EXTRACTION-BASED MEETING SYSTEM COMPLETE ===")
 

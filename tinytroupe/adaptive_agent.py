@@ -263,7 +263,8 @@ In your professional role, focus on:
         environment_hint = f"Round {current_round}/{total_rounds}" if current_round and total_rounds else None
         
         # Check if this is a business meeting nearing completion
-        if (self.adaptive_mode_enabled and current_round and total_rounds and 
+        # Only wrap up if total rounds >= 7 (never wrap up short meetings)
+        if (self.adaptive_mode_enabled and current_round and total_rounds and total_rounds >= 7 and
             self.context_detector.current_context == ContextType.BUSINESS_MEETING):
             
             if current_round == total_rounds - 1:  # Second to last round
