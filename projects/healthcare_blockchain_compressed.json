@@ -1,0 +1,174 @@
+{
+  "project_id": "healthcare_blockchain_compressed",
+  "title": "Healthcare Blockchain System - Compressed Timeline",
+  "description": "Accelerated simulation of healthcare blockchain development for testing and demonstration",
+  "execution_mode": "fully_automated",
+  "scheduling": {
+    "mode": "same_day",
+    "start_date": "2024-01-15T09:00:00",
+    "compress_timeline": true,
+    "auto_adjust_dates": true
+  },
+  "agents": [
+    {
+      "agent_id": "pm",
+      "name": "Emily Martinez",
+      "occupation": "Project Manager",
+      "skill_levels": {
+        "project_management": 8,
+        "communication": 7,
+        "coordination": 8
+      },
+      "preferences": {
+        "management": 9,
+        "coordination": 8
+      }
+    },
+    {
+      "agent_id": "cto",
+      "name": "Dr. James Wilson",
+      "occupation": "CTO",
+      "skill_levels": {
+        "architecture": 9,
+        "security": 8,
+        "blockchain": 8,
+        "leadership": 7
+      },
+      "preferences": {
+        "architecture": 10,
+        "technical_strategy": 9
+      }
+    },
+    {
+      "agent_id": "compliance",
+      "name": "Michael Thompson",
+      "occupation": "Compliance Officer",
+      "skill_levels": {
+        "compliance": 9,
+        "risk_management": 8,
+        "legal": 7
+      },
+      "preferences": {
+        "compliance": 10,
+        "risk_assessment": 9
+      }
+    },
+    {
+      "agent_id": "dev_lead",
+      "name": "Lisa Chen",
+      "occupation": "Senior Developer",
+      "skill_levels": {
+        "development": 8,
+        "fhir": 7,
+        "api_design": 7
+      },
+      "preferences": {
+        "development": 9,
+        "implementation": 8
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "kickoff",
+      "description": "Project kickoff and requirements overview",
+      "scheduled_date": "2024-01-15T09:00:00",
+      "estimated_hours": 0.5,
+      "priority": 5,
+      "meeting_required": true,
+      "attendees": ["pm", "cto", "compliance", "dev_lead"],
+      "required_skills": {
+        "project_management": 6,
+        "communication": 5
+      },
+      "dependencies": [],
+      "follow_up_tasks": ["technical_review", "compliance_check"]
+    },
+    {
+      "task_id": "technical_review",
+      "description": "Technical architecture and platform selection",
+      "estimated_hours": 1,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["cto", "dev_lead"],
+      "required_skills": {
+        "architecture": 7,
+        "blockchain": 6
+      },
+      "dependencies": ["kickoff"],
+      "follow_up_tasks": ["implementation_plan"]
+    },
+    {
+      "task_id": "compliance_check",
+      "description": "HIPAA and regulatory requirements review",
+      "estimated_hours": 1,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["compliance", "cto"],
+      "required_skills": {
+        "compliance": 8,
+        "risk_management": 6
+      },
+      "dependencies": ["kickoff"],
+      "follow_up_tasks": ["security_design"]
+    },
+    {
+      "task_id": "implementation_plan",
+      "description": "Create detailed implementation roadmap",
+      "estimated_hours": 1,
+      "priority": 3,
+      "meeting_required": true,
+      "attendees": ["pm", "dev_lead", "cto"],
+      "required_skills": {
+        "project_management": 7,
+        "development": 6
+      },
+      "dependencies": ["technical_review"],
+      "follow_up_tasks": ["final_review"]
+    },
+    {
+      "task_id": "security_design",
+      "description": "Security architecture and compliance framework",
+      "estimated_hours": 1,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["compliance", "cto", "dev_lead"],
+      "required_skills": {
+        "security": 8,
+        "compliance": 7
+      },
+      "dependencies": ["compliance_check"],
+      "follow_up_tasks": ["final_review"]
+    },
+    {
+      "task_id": "final_review",
+      "description": "Final project review and next steps",
+      "estimated_hours": 0.5,
+      "priority": 3,
+      "meeting_required": true,
+      "attendees": ["pm", "cto", "compliance", "dev_lead"],
+      "required_skills": {
+        "project_management": 6,
+        "communication": 5
+      },
+      "dependencies": ["implementation_plan", "security_design"],
+      "follow_up_tasks": []
+    }
+  ],
+  "ceo_oversight": {
+    "enabled": true,
+    "interrupt_triggers": ["milestone_completion"],
+    "review_frequency": "on_completion"
+  },
+  "success_criteria": {
+    "technical_milestones": [
+      "Platform selected",
+      "Architecture defined",
+      "Security framework established"
+    ],
+    "business_objectives": [
+      "Implementation plan approved",
+      "Team aligned on approach"
+    ]
+  }
+}
