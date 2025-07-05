@@ -1,0 +1,335 @@
+Geico kicks their cloud provider to the curb why' they do that let's talk about
+it so welcome back to the cloud computing Insider this channel explores
+the ins and outs of cloud computing without an agenda our following into the
+narrative set by big Tech marketing we look at what works what does not and the
+actual value of this technology and a balanced and information forward way if
+that interests you please subscribe like and comment I'm your host David lyam
+author speaker beis kek let's get started so this came from actually you
+guys a listener out on LinkedIn uh recommended uh this story uh I hadn't
+seen it didn't come up in my feed but uh it certainly is interesting and this is
+uh Geico's Journey Back a 300 million Cloud Bill drives major infrastructure
+shifts and it was first covered in the STA and it's uh there's a few other
+articles about it as well and they're all Linked In the description so check
+those out if you're looking for a deeper dive and by the way that's where I got
+my information from this was me not going out to Geico and dealing with
+their PR folks and talking to the people and and susing the story out myself I'm
+not a journalist I'm abundant uh so this is me responding to other uh
+Publications who covered the story so uh Geico if you don't know is a is an
+insurance company I live in the Washington DC metropolitan area where
+there's lots of government employees it's I think it's government employee uh
+insurance company I don't know what the o means uh but they had the guo caveman
+a few years ago if you remember that kind of marketing campaign they're 40
+$40 billion Brookshire Brookshire hathway company uh and U you know
+ultimately all of this was covered in the slack audio article and if you're
+looking for more detail I urge you to do your own research as to what they did
+and again my comment just isn't on the ins and outs of why Geico did this and
+even though we are going to go into the details uh in in in a uh in a very deep
+way uh it's why they're doing it and what we can learn uh from their
+experiences so this is a uh you know they went from a $300 million Cloud
+spending trigger point uh so in other words I think they they uh were mad as
+hell they couldn't take it anymore when their Cloud spend went to $300 million
+uh and then it triggered that repatriation which we'll talk about so
+you got to keep in mind that people push
+back on the repatriation stuff uh when I talked about how 20 2023 and 2024 you
+know are going to be the years of repatriation they say they don't see
+that many stories out there absolutely right because most companies who are
+doing repatriation and I worked a lot on a lot of these projects myself they're
+not going to publicly uh announce what they're doing uh and so even if I'm a
+consultant for these companies you sign ndas which means you can't you know take
+information you learn there uh write about it speak about it things like that
+so that's why you don't hear about it and ones I think you do hear about
+normally there are some other motivations that play as well uh you
+know we saw the uh uh Dave Hansen company uh last year in terms of his
+repatriation and he made a a big deal out of that and it was great that he
+would expose it and lots of other smaller plays uh in this now Geico and
+so I I can't comment on what's going on here but normally there is some sort of
+uh uh trigger within the deal where they're going to get a massive discount
+but uh they can't uh but they have to announce uh the project so it's in other
+words you need to go on the record and I worked these deals of CTO before uh
+you're getting some marketing play out of some sort of a discount you're
+providing them and so this could have been the case where they're offering
+them s significant discounts to move back to on Prim with some sort of a
+vendor doing it and they do have a a core vendor that they're using for this
+repatriation and they're doing it for their own own reasons which is fine so
+based on my experience thousands of these projects are occurring worldwide
+right now they're they're either small medium large like T-shirt size I would
+call GEOS a large probably an extra large but they're just starting to
+normalize their workloads and their data sets and migrating some of them back on
+Prim that probably never should have been in the cloud in the first place and
+so and what's triggering that as this massive Bill uh that they're seeing and
+one of the things I am going to do is talk about the stages that I think a lot
+of companies are going through over the last 10 years in terms of their
+realizing that they have an issue and then triggering the repatriation stuff
+that we see today so Geico's Cloud Journey are how they get had a path to
+the public cloud and they're a big public Cloud user just like a lot of
+insurance companies out there I think you'll find that you know 30 40% of
+their uh workloads and data sets exist in the cloud now if not more so their
+initial Cloud adoption occurred when everybody else was adopting Cloud
+beginning in 2013 so roughly 11 years ago and the scale of operations they had
+a presence across eight different Cloud providers so they're a multicloud
+deployment they had 200,000 cores of computing power
+300,000 30,000 instances of containers and VMS 80% of their workloads were in
+the public Cloud that's massive by the way that's normally almost an unnatural
+number that we see out there so they evidently made the push probably had a
+cloud first thing and probably made too much of an aggressive movement in cloud
+and of course they had 600 plus applications were involved uh that
+existing in the cloud so they were all in in Cloud very much like a lot of
+companies I was dealing with the time and Cloud only Cloud this we're going to
+move everything to the cloud we're going to shut down our data centers you know
+yada yada yada and here we are in 2024 talking about how we're putting them
+back in the data centers which is which is a common story right
+now so the breaking point for geo why they decided to repatriate was was the
+reason most people do was cost factors in other words it wasn't not working in
+the cloud everything works on Prem and everything works in the cloud it really
+is dependent on how much money you're willing to pay for it and uh and that
+that's where they uh they kind of um you know the straw that broke the camel's
+back so to speak so they had a 300 plus million doll annual Cloud Bill uh that
+they were paying for single provider accounted for $50 million uh you can
+guess who that is out of the big three out are out there that the one that's
+most used 2.5 uh X increase in costs over time and
+if you know that that's actually kind of cool because that aligns with what I
+talk about in my book that people are paying normally when they look at what
+they anticipated paying when they before they moved in the cloud and what they
+actually are paying is normally 2.5 times what what is what was it expected
+to be so if they expect it to be you know $1,000 for a particular workload
+per month it ended up being uh you know 2500 which is pretty a pretty big range
+when you're an insurance company or you're a manufacturing company and your
+margins are very small and the amount that you're able to allocate to it uh is
+also going to be very small and suddenly you have this resource in this case
+public Cloud providers that are eating up all your money uh and so they had
+expensive storage and AI operations that they're starting to emerge in and they
+just said hey this is enough uh we're going to go ahead and uh move this stuff
+uh to a more economical or a a more cost efficient platform which in their case
+was on Prem and by the way this could be another microc cloud or moving it to a
+Colo provider when you're talking about Colo providers and man and service
+providers functionally speaking they're moving it back on Prem they're just
+moving it back on Hardware that they're maintaining their own Hardware within a
+rented space within a data center space and you know it's digital ocean and a
+bunch of these coo providers are out there they're able to provide these
+capabilities in fact I rarely see and I wouldn't recommend that people would
+build their own data center space uh but use a Colo provider or sometimes a
+managed service provider if they're not going to use the cloud so they had data
+spread across multiple vendors integration complexities and making this
+happen obviously complexity is the big thing here they
+probably did anticipate uh the amount of native clouds that they had to work
+across uh you have to pay the money to uh make all these systems work and play
+well together and also there's uh data egress and Ingress fees that have to be
+paid I'm sure that was a lot of their $300 million uh bill that they were
+getting every year and they also viewed it as in Innovation limitations so other
+words they couldn't be as Innovative as they needed to be if they were using
+somebody else's equipment or somebody else's stuff which is really what cloud
+providers are I'd be interested to hear the details behind that and by the way
+you work for Geico and you're willing to come on the show reach out to me I'll
+get you on um and uh really it just kind of a bunch of bad decisions that they
+made and again the Assumption here and just an assumption on my part is they
+went through uh the mistakes that lots of other Enterprises do they just moved
+to Cloud for the sheer uh emotion of it in other words everybody was doing
+moving everything to Cloud first and they looked at every workload as
+something they could move to the cloud and you certainly could you could pick
+it up you could do a lift and shift uh find an analog of the platform and the
+cloud provider you're moving to everything's going to work fine but you
+get the bill that's where the uh uh problem occurs uh so this is not a
+incompatibility thing this is not a uh techn technological limitations that the
+cloud providers put on them this is cos thing other cost them way more than they
+thought they they would would be paying and if Cloud providers aren't willing to
+uh significantly reduce their prices and we talked about that on the show before
+uh then it's it's fine it's time to find Alternatives and that's what Geico did
+so what do they pick is their alternative well they pick the open
+Cloud project or ocp uh which was a uh technical
+implementation uh they had a partnership with ywi I guess it's a Chinese company
+adoption of AMD epic chips chipsets as part of it so in other words moving to a
+new chipset implementation of O RV's rack spe specifications and moving to it
+and use of open bmc's and red uh red fish for Fleet Management of the system
+so all in on moving to uh on-prem environments in this particular vendor
+this particular solution was what they picked and I suspect that uh I don't
+know I suspect that uh you know part of their adoption was going to be making
+the announcement which is why we're I'm reading it on the show uh which is
+probably going to be hit a 100,000 times and so uh ocp is getting uh Free Press
+uh Geico I think is getting some positive press even though I would be
+asking the question why was it in the cloud in the first place if that was the
+wrong decision if you're paying to make um you know paying to fix it now however
+they view this is a net benefit for them probably the discounts they're getting
+for making the announcements so what was the final impact of moving on Prem 50%
+reduction in compute cost per core 60% reduction in storage cost per gigabyte
+significant power efficiency improvements were made as well and so uh
+this was what we're typically seeing and moving it back to on Prim and what has
+occurred in the last 10 years years is the cost of storage and the cost of
+compute that occurs on Prim the cost of owning your own Hardware has
+significantly come down uh in the last 10 years um you know I wouldn't say
+exactly a 45 degree angle and obviously the uh the prices are going to change
+but it's fairly cheap uh to uh set up infrastructure on Prem you know even if
+you use the major providers like IBM and HP and Dell uh and it's uh you're just
+going to have to run it yourself and pay for your own power you know it becomes
+completely your problem where Cloud providers were able to in essence um
+abstract you away from a lot of that stuff since they were using them through
+the open internet or through some sort of a private connection um they were it
+was their issue to deal with storage sometimes the bcdr stuff things like
+that now it's on you but normally the financial benefits in this case you know
+50% reduction in compute cost 60 60% reduction in storage cost that's
+significant so that's a reason to go ahead and absorb those RIS RIS of
+running this stuff on Prem Geico uh did the analysis and it was clear that that
+was their best path so what was their technical
+architecture which is important they use kubernetes uh for compute provisioning
+so containers and container orchestration custom placement Solutions
+uh for cppy cap API uh open source monitoring with with prometh Prometheus
+and grafana modular Hardware design approach uh which is what they picked
+and so this is uh you know pretty I would say is it off the shelf yeah this
+is the way a lot of Enterprises are building their Solutions e days
+certainly kubernetes container orchestration and use of containers is
+uh hugely popular out there it's probably an overused architecture just
+like we talked about the microservice stuff and it has a tendency however to
+run up the costs in other words it uses more compute it uses more storage
+capabilities and I suspect that they may have run into that as a um problem in
+other words when they started moving into Cloud they got these big cloud
+bills because because they're they're running these big honking you know
+container and container orchestration applications on the cloud which is
+perfectly fine uh to do but you're just going to have to pay for it however if
+you do run them on Prem with your own Hardware you're not going to get this uh
+power bill uh every month in other words you pay for the sunk cost of the
+hardware uh and to power it and uh whether you use 50% of your
+infrastructure 80% of your infrastructure um basically you're going
+to pay Mo the same stuff in other words that's after the fixed cost has been
+made and so that's the advantage to running on things on Prim and that's why
+it's probably more cost-effective for them so some of the implementation
+challenges that Geico uh told us author about and he published it in his article
+were supply chain constraints probably getting uh some of the hardware they
+needed on time um certainly during Co that was a a problem that everybody was
+running into Talent acquisition and retention which is systemic to
+everything that's there they couldn't find the people they needed if they're
+going to run it on Prim to monitor do the core architecture things like that
+in fact what I'm finding out is many of these companies are going back to uh you
+know some of their older employees and retraining them uh to put them back on
+what they were focused on 10 years ago so in other words someone was you know
+focused on Prem uh in terms of running things within a Data Center and running
+their own owned Hardware uh then they moved them in the cloud and they
+retrained them for the cloud and now they're ret training them to get them uh
+focused back on the new solution which is going to be on Prem so as some of the
+older employees are probably looking at a little bit of whiplash what they're
+going through Hardware software integration uh was obviously a challenge
+and it's always going to be a challenge when you're dealing with stuff you own
+you got to remember it's your problem you're doing it uh even though you have
+a hardware provider and platform provider and software providers to help
+you at the end of the day it's your responsibility to get things up and
+running and then some custom networking requirements which were uh always going
+to be issue again we're not leveraging a network on demand like we're doing with
+cloud computing this is ours we have to maintain it and I think they found that
+a bit challenging which I don't find a surprise at
+all so what I thought was interesting is that out of all the repatriation and
+stuff that I'm seeing out there they're they're starting to emerge with common
+patterns in other words there's a cloud Journey life cycle and that I think we
+can you know kind of tag and label now and so stage one of that Journey would
+be adoption and initial excitement about the cloud possibilities and certainly
+this is between 2008 and 2015 everybody was moving into Cloud uh focus on
+agility and scalability as the battlecries REM moving in the cloud and
+I think there's good reason to do that again cloud is going to be an okay
+solution as long as you're doing so with the proper workloads and uh but they
+turned this into a cultural thing where people were making the automat automatic
+decisions to move stuff in the cloud I suspect there wasn't a lot of
+architecture involved probably no uh understanding what the costs were going
+to be uh and this was just kind of a lift and shift thing where they're
+lifting things uh sticking in the cloud and kind of hoping for the best and
+normally if these applications are not uh normalized or modernized uh so
+they're able to leverage Cloud resources
+efficiently then you're going to get the big bills and I suspect that's what's
+driving this and they may have looked at uh going off and modernizing the
+applications as an alternative to repatriation uh but realized the
+probably it could have been cost prohibitive and added more risk uh than
+they wanted to to deal with and the easiest path of least resistance was the
+moving back on PR stage two would be the growth rapid expansion cloud services
+multiple provider adoption increased workload migration so this is all in for
+cloud uh we're training people on cloud computing you know this is our our way
+moving forward that probably uh you know was something discussed even at the
+boardroom uh and everybody was very excited about using cloud and they were
+starting to hit the accelerator and getting the migration factories up and
+running and moving their data and workload to the cloud stage three is
+when you see the cost realization so in other words a growing awareness of cloud
+expenses and this probably occurred five years ago I started to see it more and
+more recognition of scaling costs they understood they had to pay more uh if
+they were using more and it impacted the
+bottom line so it was probably allocated
+a certain percentage of Revenue and they were probably taking more of a
+percentage than I think the board of directors and the investors thought they
+were taking uh based on the fact they underestimated ated the impact of cloud
+costs and so that drove stage four which is the evaluation detailed cost benefit
+analysis assessment of Alternatives including on Prem and they did the ROI
+calculations for the different approaches so Geico didn't call this out
+specifically in the article and the article's just written by somebody
+telling a story to a reporter and they're writing that and that's where I
+got my information from but assuming they did the ROI cost uh total cost of
+ownership what they have now and what are the alternatives on Prim you know
+probably move moving it to different Cloud providers microc clouds Colo
+versus managed service providers and they came up with a solution which which
+was going to be the most cost effective for them and then stage five where they
+are now with repatriation strategic workload assessment hybrid approach
+considerations you know in other words this by the way is almost never going to
+be everything moves off the cloud and moves on Prem it's not binary like that
+so there's going to be workloads that do move off the cloud in sequence uh but
+some some workloads and some data is likely to be left on the public cloud
+provider so you have to operate it in a hybrid configuration they probably just
+moved the workloads off of the cloud providers that were generating the
+highest bills smart so they had to deal with hybrid approach uh implementations
+of on premise Solutions so get into the cultural differences and chances are
+Geico don't know for sure they had some on-prem stuff that was already there in
+other words they're always running their own infrastructure if 80% of the
+workloads were in Cloud then the other stuff was typically going to be run on
+Prem uh and I assume that's including some of their SAS deployments as well
+use of Salesforce common accounting systems things like that so this is the
+stages that you go through I think that companies are going through kind of as a
+common pattern so again they go through stage one which is adoption stage two
+which is grow stage three which is cost realization the realize this cost too
+much than we thought it was going to be stage four evaluation stage five
+repatriation basically putting it back on another platform not necessarily on
+Prim but it's on Prim uh probably nine times out of 10 and so this is GEICO's
+Journey but I'm seeing this story told over and over again and again most of
+the companies are going to go public with that but I'm seeing as kind of my
+anal information experiences as a consultant over the last you know 10
+years as to this being you know kind of a common pattern we're going to see over
+and over again so we're going to see more GEOS we're going to see more
+stories like this and I'll report them here uh but again you have to kind of
+look at them with the heart of an architect in other words
+understand that this is not an emotional decision to move off a public cloud
+provider but this is a logical decision based on what that public cloud provider
+was charging you in terms of cost so by all accounts based on what I
+read in the article again uh this was a huge success for Geico um Geico is the
+rightsize company that's going to benefit for something like this in other
+words they're they're uh large enough to um uh be able to benefit from from the
+economies of scale and moving it from Cloud to on Prem
+but they're not this major you know Fortune 5 company uh which is going to
+be able is going to absorb lots of amount lots of other risks is going to
+have lots of um you know people who are monitoring what they do I think Geico uh
+maybe a u a private company I didn't look you guys can look yourself so
+they're not necessarily set up for the scrutiny I think that uh that it would
+be so industry implications would be I think other insurance providers are
+going to look at this as an opportunity for them uh in other words are they
+going to make money in doing this again looking at Geico's Journey which they're
+coming P going public with which is awesome for us because we're able to
+learn through their Journey uh and this is going to impact uh Enterprise Cloud
+strategies and again keep in mind Cloud works well for what it does uh and you
+have to understand the workloads moving to cloud and where the mistakes are
+being made is uh that people are not necessarily putting the right analysis
+planning and architecture around moving these workloads into the cloud just by
+the fact they're not understanding uh that this 2.5 times what they paid is
+going to uh is going to come up and hit them uh and U so by not understanding
+they're just going blindly into a platform they really didn't understand
+what the costs were going to be and so that's why many are hitting the reset
+button I suspect we'll see more of these as well and I'll report them
+here well that's all I have for this week just back from LinkedIn learning
+recorded some courses out there um so have a great time with those guys and
+check out my LinkedIn learning courses uh for I think there 125 courses out
+there even considering the translations working with those guys for 10 years
+have a great uh great amount of fun with
+them and the students are happy that the content's out there please check that
+out also don't forget my fully mentored uh long form training course out on go
+Cloud careers where we go through the ins and outs of generative AI
+architecture it's not just throwing videos at you and this is basically
+walking you through a project how you learn um learn by doing doing
+deliverables reviewing deliverables you know and all that kind of stuff which is
+the hard part of it but it's what you need to know to be a successful uh
+architect in general Cloud architect security architect but in this case
+we're focused on generative Ai and as you know that's a big Trend right now
+also don't forget my inf4 World blog and uh my other stuff uh you know follow me
+on LinkedIn and see my other content as it flies by uh don't forget to check out
+my other podcast AI insights and Innovation out on the cube and um you
+know let's keep going so happy to have you here thank you very much for
+listening to the show don't forget to like And subscribe I'll talk to you guys
+in a week bye

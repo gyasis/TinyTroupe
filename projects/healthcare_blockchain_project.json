@@ -1,0 +1,428 @@
+{
+  "project_id": "healthcare_blockchain_v1",
+  "title": "Healthcare Blockchain Medical Records System",
+  "description": "Complete development and implementation of a blockchain-based medical records system with FHIR integration and HIPAA compliance",
+  "execution_mode": "incremental",
+  "scheduling": {
+    "mode": "distributed",
+    "start_date": "2024-01-15T09:00:00",
+    "compress_timeline": false,
+    "auto_adjust_dates": true
+  },
+  "agents": [
+    {
+      "agent_id": "pm",
+      "name": "Emily Martinez",
+      "occupation": "Senior Project Manager specializing in healthcare IT",
+      "personality_traits": [
+        "Results-oriented and deadline-focused",
+        "Excellent stakeholder communication",
+        "Strong background in Agile methodologies"
+      ],
+      "professional_interests": [
+        "Healthcare IT project management",
+        "Digital transformation",
+        "Team leadership"
+      ],
+      "skills": [
+        "Project management",
+        "Agile methodologies", 
+        "Stakeholder communication"
+      ],
+      "years_experience": "12+ years",
+      "skill_levels": {
+        "project_management": 9,
+        "communication": 8,
+        "healthcare": 7,
+        "leadership": 8
+      },
+      "preferences": {
+        "management": 9,
+        "coordination": 8,
+        "planning": 9
+      }
+    },
+    {
+      "agent_id": "cto",
+      "name": "Dr. James Wilson",
+      "occupation": "Chief Technology Officer with healthcare IT expertise",
+      "personality_traits": [
+        "Strategic technology leader",
+        "Deep healthcare domain knowledge",
+        "Security and compliance focused"
+      ],
+      "professional_interests": [
+        "Healthcare IT architecture",
+        "System integration",
+        "Enterprise security"
+      ],
+      "skills": [
+        "Enterprise architecture",
+        "Healthcare IT security",
+        "System integration"
+      ],
+      "years_experience": "18+ years",
+      "skill_levels": {
+        "architecture": 10,
+        "security": 9,
+        "healthcare": 9,
+        "blockchain": 8,
+        "leadership": 8
+      },
+      "preferences": {
+        "architecture": 10,
+        "security": 9,
+        "technical_strategy": 9
+      }
+    },
+    {
+      "agent_id": "compliance",
+      "name": "Michael Thompson",
+      "occupation": "Healthcare Compliance Officer specializing in HIPAA",
+      "personality_traits": [
+        "Expert in healthcare privacy regulations",
+        "Risk assessment focused",
+        "Detail-oriented and thorough"
+      ],
+      "professional_interests": [
+        "HIPAA compliance",
+        "Healthcare privacy law",
+        "Digital health regulations"
+      ],
+      "skills": [
+        "HIPAA regulations",
+        "Healthcare compliance",
+        "Risk assessment"
+      ],
+      "years_experience": "14+ years",
+      "skill_levels": {
+        "compliance": 10,
+        "risk_management": 9,
+        "healthcare": 8,
+        "legal": 8,
+        "analysis": 7
+      },
+      "preferences": {
+        "compliance": 10,
+        "risk_assessment": 9,
+        "regulatory": 9
+      }
+    },
+    {
+      "agent_id": "dev_lead",
+      "name": "Lisa Chen",
+      "occupation": "Senior Software Developer specializing in healthcare apps",
+      "personality_traits": [
+        "Technical expertise in healthcare standards",
+        "Clean code advocate",
+        "Collaborative team player"
+      ],
+      "professional_interests": [
+        "FHIR-compliant development",
+        "Healthcare interoperability",
+        "API development"
+      ],
+      "skills": [
+        "FHIR standards",
+        "API development",
+        "Healthcare compliance"
+      ],
+      "years_experience": "8+ years",
+      "skill_levels": {
+        "development": 9,
+        "fhir": 8,
+        "api_design": 8,
+        "healthcare": 7,
+        "testing": 7
+      },
+      "preferences": {
+        "development": 9,
+        "technical_implementation": 8,
+        "standards": 8
+      }
+    },
+    {
+      "agent_id": "blockchain_dev",
+      "name": "Alex Rodriguez",
+      "occupation": "Senior Blockchain Developer with healthcare focus",
+      "personality_traits": [
+        "Blockchain architecture expert",
+        "Security and scalability focused",
+        "Practical implementation approach"
+      ],
+      "professional_interests": [
+        "Blockchain healthcare applications",
+        "Smart contract development",
+        "Distributed systems"
+      ],
+      "skills": [
+        "Blockchain development",
+        "Smart contracts",
+        "Distributed systems"
+      ],
+      "years_experience": "6+ years",
+      "skill_levels": {
+        "blockchain": 9,
+        "smart_contracts": 8,
+        "security": 8,
+        "scalability": 7,
+        "healthcare": 6
+      },
+      "preferences": {
+        "blockchain": 10,
+        "architecture": 8,
+        "security": 8
+      }
+    },
+    {
+      "agent_id": "clinical_expert",
+      "name": "Dr. Sarah Chen",
+      "occupation": "Clinical Informaticist and practicing physician",
+      "personality_traits": [
+        "Patient care focused",
+        "EHR system expert",
+        "Workflow optimization advocate"
+      ],
+      "professional_interests": [
+        "Clinical workflow optimization",
+        "Health informatics",
+        "Patient data management"
+      ],
+      "skills": [
+        "Clinical practice",
+        "Health informatics",
+        "Workflow analysis"
+      ],
+      "years_experience": "12+ years",
+      "skill_levels": {
+        "clinical": 10,
+        "workflow_analysis": 9,
+        "healthcare": 10,
+        "informatics": 8,
+        "user_experience": 7
+      },
+      "preferences": {
+        "clinical_requirements": 10,
+        "user_experience": 9,
+        "workflow": 8
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "project_initiation",
+      "description": "Project kickoff meeting to establish scope, timeline, and initial requirements for healthcare blockchain system",
+      "scheduled_date": "2024-01-15T09:00:00",
+      "estimated_hours": 2,
+      "priority": 5,
+      "meeting_required": true,
+      "attendees": ["pm", "cto", "compliance", "dev_lead", "blockchain_dev", "clinical_expert"],
+      "required_skills": {
+        "project_management": 7,
+        "communication": 6
+      },
+      "dependencies": [],
+      "follow_up_tasks": ["requirements_gathering", "technical_feasibility"]
+    },
+    {
+      "task_id": "requirements_gathering",
+      "description": "Detailed requirements gathering session focusing on clinical workflows, FHIR standards, and user needs",
+      "estimated_hours": 4,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["clinical_expert", "dev_lead", "pm"],
+      "required_skills": {
+        "clinical": 8,
+        "fhir": 6,
+        "analysis": 7
+      },
+      "dependencies": ["project_initiation"],
+      "follow_up_tasks": ["fhir_integration_design", "user_interface_mockups"]
+    },
+    {
+      "task_id": "technical_feasibility",
+      "description": "Technical feasibility analysis for blockchain platform selection and architecture design",
+      "estimated_hours": 6,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["cto", "blockchain_dev", "dev_lead"],
+      "required_skills": {
+        "blockchain": 8,
+        "architecture": 8,
+        "scalability": 6
+      },
+      "dependencies": ["project_initiation"],
+      "follow_up_tasks": ["blockchain_platform_selection", "architecture_design"]
+    },
+    {
+      "task_id": "compliance_framework",
+      "description": "Establish HIPAA compliance framework and identify all regulatory requirements",
+      "estimated_hours": 4,
+      "priority": 5,
+      "meeting_required": true,
+      "attendees": ["compliance", "cto", "pm"],
+      "required_skills": {
+        "compliance": 9,
+        "risk_management": 7,
+        "healthcare": 7
+      },
+      "dependencies": ["project_initiation"],
+      "follow_up_tasks": ["security_architecture", "audit_requirements"]
+    },
+    {
+      "task_id": "blockchain_platform_selection",
+      "description": "Evaluate and select appropriate blockchain platform (Ethereum, Hyperledger, etc.) for healthcare use",
+      "estimated_hours": 8,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["blockchain_dev", "cto", "compliance"],
+      "required_skills": {
+        "blockchain": 9,
+        "architecture": 7,
+        "compliance": 6
+      },
+      "dependencies": ["technical_feasibility", "compliance_framework"],
+      "follow_up_tasks": ["smart_contract_design", "consensus_mechanism"]
+    },
+    {
+      "task_id": "fhir_integration_design",
+      "description": "Design FHIR data integration architecture and mapping to blockchain storage",
+      "estimated_hours": 6,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["dev_lead", "clinical_expert", "blockchain_dev"],
+      "required_skills": {
+        "fhir": 8,
+        "api_design": 7,
+        "blockchain": 6
+      },
+      "dependencies": ["requirements_gathering", "blockchain_platform_selection"],
+      "follow_up_tasks": ["api_specification", "data_mapping"]
+    },
+    {
+      "task_id": "security_architecture",
+      "description": "Design comprehensive security architecture including encryption, access controls, and key management",
+      "estimated_hours": 8,
+      "priority": 5,
+      "meeting_required": true,
+      "attendees": ["cto", "compliance", "blockchain_dev"],
+      "required_skills": {
+        "security": 9,
+        "compliance": 8,
+        "blockchain": 7
+      },
+      "dependencies": ["compliance_framework", "blockchain_platform_selection"],
+      "follow_up_tasks": ["key_management_system", "access_control_implementation"]
+    },
+    {
+      "task_id": "smart_contract_design",
+      "description": "Design smart contracts for patient consent, data access, and audit trails",
+      "estimated_hours": 10,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["blockchain_dev", "compliance", "clinical_expert"],
+      "required_skills": {
+        "smart_contracts": 8,
+        "compliance": 7,
+        "clinical": 6
+      },
+      "dependencies": ["blockchain_platform_selection", "security_architecture"],
+      "follow_up_tasks": ["contract_implementation", "testing_framework"]
+    },
+    {
+      "task_id": "user_interface_mockups",
+      "description": "Create user interface mockups for patient portal and healthcare provider interface",
+      "estimated_hours": 6,
+      "priority": 3,
+      "meeting_required": false,
+      "attendees": ["dev_lead"],
+      "required_skills": {
+        "user_experience": 7,
+        "clinical": 6,
+        "development": 6
+      },
+      "dependencies": ["requirements_gathering"],
+      "follow_up_tasks": ["ui_development", "usability_testing"]
+    },
+    {
+      "task_id": "api_specification",
+      "description": "Create detailed API specifications for FHIR endpoints and blockchain interactions",
+      "estimated_hours": 5,
+      "priority": 3,
+      "meeting_required": false,
+      "attendees": ["dev_lead"],
+      "required_skills": {
+        "api_design": 8,
+        "fhir": 7,
+        "development": 7
+      },
+      "dependencies": ["fhir_integration_design"],
+      "follow_up_tasks": ["api_implementation", "integration_testing"]
+    },
+    {
+      "task_id": "pilot_deployment_planning",
+      "description": "Plan pilot deployment strategy with select healthcare partners",
+      "estimated_hours": 4,
+      "priority": 3,
+      "meeting_required": true,
+      "attendees": ["pm", "clinical_expert", "cto"],
+      "required_skills": {
+        "project_management": 7,
+        "clinical": 7,
+        "deployment": 6
+      },
+      "dependencies": ["smart_contract_design", "api_specification"],
+      "follow_up_tasks": ["pilot_implementation", "partner_onboarding"]
+    },
+    {
+      "task_id": "testing_strategy",
+      "description": "Develop comprehensive testing strategy including security, performance, and compliance testing",
+      "estimated_hours": 6,
+      "priority": 4,
+      "meeting_required": true,
+      "attendees": ["dev_lead", "blockchain_dev", "compliance"],
+      "required_skills": {
+        "testing": 8,
+        "security": 7,
+        "compliance": 7
+      },
+      "dependencies": ["smart_contract_design", "security_architecture"],
+      "follow_up_tasks": ["test_implementation", "security_audit"]
+    }
+  ],
+  "ceo_oversight": {
+    "enabled": true,
+    "interrupt_triggers": [
+      "milestone_completion",
+      "risk_threshold_exceeded",
+      "schedule_delay"
+    ],
+    "review_frequency": "weekly",
+    "escalation_criteria": {
+      "budget_variance": 15,
+      "schedule_delay_days": 5,
+      "critical_risks": 3
+    }
+  },
+  "success_criteria": {
+    "technical_milestones": [
+      "Blockchain platform selected and configured",
+      "FHIR integration working with test data",
+      "Security architecture validated",
+      "Smart contracts deployed and tested",
+      "Pilot deployment successful"
+    ],
+    "compliance_requirements": [
+      "HIPAA compliance framework established",
+      "Security audit passed",
+      "Privacy impact assessment completed",
+      "Regulatory approval for pilot"
+    ],
+    "business_objectives": [
+      "Patient consent management system operational",
+      "Healthcare provider onboarding process defined",
+      "Data interoperability demonstrated",
+      "Scalability requirements validated"
+    ]
+  }
+}

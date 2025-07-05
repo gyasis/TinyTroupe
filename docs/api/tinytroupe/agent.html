@@ -1833,7 +1833,70 @@ class SemanticMemory(TinyMemory):
         self.add_web_urls(self.documents_web_urls)</code></pre>
 </details>
 </section>
-<section>
+<section id="section-adaptive-agents">
+<h2 class="section-title" id="header-adaptive-agents">AdaptiveTinyPerson: Enhanced Context-Aware Agents</h2>
+<p>Building on the foundation of TinyPerson, TinyTroupe now includes <strong>AdaptiveTinyPerson</strong> - an enhanced agent system that automatically adapts behavior based on conversation context. This addresses a key challenge in technical and business discussions where agents would get stuck in circular, polite conversations without reaching concrete decisions.</p>
+
+<h3>Why AdaptiveTinyPerson?</h3>
+<p>While regular TinyPerson excels at casual conversations, creative brainstorming, and interviews, it can struggle in technical decision-making scenarios where agents would repeatedly exchange pleasantries without making progress. AdaptiveTinyPerson solves this by automatically detecting conversation context and adapting behavior accordingly.</p>
+
+<h3>Key Features</h3>
+<ul>
+<li><strong>Context-Aware Behavior</strong>: Automatically detects and adapts to different conversation types (business meetings, technical discussions, casual conversations, creative brainstorming, interviews)</li>
+<li><strong>Expert Authority System</strong>: Domain experts assert authority and guide decisions in their specialties</li>
+<li><strong>Decision-Forcing Mechanisms</strong>: Detects circular conversations and forces concrete decisions</li>
+<li><strong>Backward Compatibility</strong>: Drop-in replacement that preserves all existing functionality</li>
+</ul>
+
+<h3>Usage Example</h3>
+<pre><code class="python">from tinytroupe.adaptive_agent import create_adaptive_agent
+
+# Create an adaptive agent with enhanced decision-making capabilities
+alex = create_adaptive_agent(
+    name="Alex Rodriguez",
+    occupation="Senior Blockchain Developer",
+    personality_traits=[
+        "Technical expert focused on practical solutions",
+        "Security and scalability focused"
+    ],
+    professional_interests=[
+        "Blockchain healthcare applications", 
+        "Ethereum and Hyperledger development"
+    ],
+    skills=[
+        "Blockchain development", "Smart contracts", 
+        "System architecture", "Healthcare applications"
+    ]
+)
+
+# Set meeting context for optimal behavior
+alex.set_environment_context(
+    meeting_type="technical_decision",
+    agenda_items=["Platform Selection", "Implementation Timeline"],
+    participant_roles=["Developer", "Architect", "Product Manager"]
+)
+</code></pre>
+
+<h3>When to Use Each Type</h3>
+<p><strong>Use Regular TinyPerson for:</strong></p>
+<ul>
+<li>Social conversations between agents</li>
+<li>Creative brainstorming sessions</li>
+<li>Customer interviews</li>
+<li>Casual information gathering</li>
+<li>Personality-driven interactions</li>
+</ul>
+
+<p><strong>Use AdaptiveTinyPerson for:</strong></p>
+<ul>
+<li>Technical decision meetings</li>
+<li>Architecture reviews</li>
+<li>Business planning sessions</li>
+<li>Expert consultations</li>
+<li>Problem-solving discussions</li>
+</ul>
+
+<p>For more information, see the <a href="../TinyTroupe/02_tinyperson.html">TinyPerson documentation</a> and the <code>tinytroupe.adaptive_agent</code> module.</p>
 </section>
 <section>
 </section>

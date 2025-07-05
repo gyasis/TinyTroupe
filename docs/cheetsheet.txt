@@ -1,0 +1,333 @@
+1. TinyWorld
+Purpose
+A TinyWorld represents an environment or simulation context where agents (TinyPerson or custom agents) interact with each other and possibly with external entities.
+
+Key Attributes
+name: The name of the environment (string).
+agents: A list of agents (e.g., TinyPerson instances).
+current_datetime: The current datetime of the environment (default is datetime.datetime.now()).
+broadcast_if_no_target: If True, an action without a specified target is broadcast to all agents.
+_displayed_communications_buffer: Internal buffer for displayed communications (for logging/printing).
+Common Methods
+__init__(self, name="A TinyWorld", agents=[], initial_datetime=None, broadcast_if_no_target=True, ...)
+Initializes a new TinyWorld. You can pass a list of agents, a custom datetime, etc.
+
+add_agents(self, new_agents)
+Add one or more agents to the environment. This also sets each agent’s environment attribute to this TinyWorld.
+
+set_simulation_for_free_environments(simulation)
+(Optional) Associates the world with a simulation ID or object if you are grouping multiple worlds under one simulation.
+
+Time Skipping Methods
+
+skip_days(self, days: int)
+skip_hours(self, hours: int)
+skip_minutes(self, minutes: int)
+skip_months(self, months: int)
+skip_weeks(self, weeks: int)
+skip_years(self, years: int)
+These methods advance the current_datetime of the TinyWorld by the specified amount.
+Minimal Example
+python
+Copy code
+from tinytroupe.world import TinyWorld
+from tinytroupe.agents import TinyPerson
+
+# Create a world
+world = TinyWorld(name="My Simulation World")
+
+# Create agents
+person_a = TinyPerson(name="Alice")
+person_b = TinyPerson(name="Bob")
+
+# Add them to the world
+world.add_agents([person_a, person_b])
+
+# Advance time
+world.skip_days(1)
+world.skip_hours(3)
+2. TinyFactory
+Purpose
+A TinyFactory (and its subclasses) is responsible for creating or encoding/decoding agents (TinyPerson) and other data relevant to a simulation.
+
+Key Attributes
+all_factories: A dictionary to keep track of all factory instances (global usage).
+simulation_id: Optional string or ID to associate this factory with a particular simulation.
+Common Methods
+__init__(self, simulation_id: str = None)
+Initialize the factory, optionally linking it to a simulation.
+
+add_factory(cls, factory)
+Class method that adds a factory instance to the global list/dict of known factories.
+
+clear_factories(cls)
+Class method that clears the global factories list/dict.
+
+encode_complete_state(self) -> dict
+Encodes the entire state of the factory (useful for saving or transferring state).
+
+decode_complete_state(self, state: dict)
+Decodes (restores) the entire factory state from a dictionary.
+
+set_simulation_for_free_factories(simulation)
+If a factory is not associated with a simulation, this method can link them.
+
+Minimal Example
+python
+Copy code
+from tinytroupe.factory import TinyFactory
+
+# Create a generic factory
+factory = TinyFactory(simulation_id="Sim123")
+
+# Encode the state
+encoded_state = factory.encode_complete_state()
+
+# Clear all existing factories from the global registry
+TinyFactory.clear_factories()
+
+# Restore state
+factory.decode_complete_state(encoded_state)
+3. TinyPersonFactory
+Purpose
+A TinyPersonFactory extends TinyFactory to specialize in generating TinyPerson agents, often using an LLM (e.g., OpenAI) to create backstories, personalities, or unique attributes.
+
+Key Methods
+__init__(self, context_text, simulation_id: str = None)
+Initializes with some context_text (e.g., background setting) and an optional simulation_id.
+
+generate_person(self, agent_particularities: str = None, temperature=1.5, attempts=10)
+Calls the underlying LLM (by default OpenAI’s GPT or another configured model) to generate one TinyPerson.
+
+agent_particularities: Extra text to guide generation (e.g., “A wizard that likes coffee”).
+temperature: Sampling temperature for the LLM.
+attempts: How many times to retry if generation fails.
+generate_people(self, number_of_people: int, agent_particularities: str = None, temperature=1.5, attempts=10, verbose=False) -> list
+Generates multiple people at once.
+
+generate_person_factories(number_of_factories, generic_context_text)
+Creates multiple TinyPersonFactory instances, each seeded with the provided context.
+
+_aux_model_call(self, messages, temperature) (internal)
+Helper to actually call the model’s API.
+
+_setup_agent(self, agent, configuration) (internal)
+Sets up an agent after creation (e.g., name, roles, memory, etc.).
+
+Minimal Example
+python
+Copy code
+from tinytroupe.factory import TinyPersonFactory
+
+# Initialize a TinyPersonFactory with context
+person_factory = TinyPersonFactory(context_text="A cozy fantasy tavern setting")
+
+# Generate one person
+person = person_factory.generate_person(agent_particularities="A bard who loves mischief")
+print(person)
+
+# Generate multiple people
+crowd = person_factory.generate_people(5, agent_particularities="Knights of the round table")
+for c in crowd:
+    print(c.name)
+4. TinyPerson (Agent)
+Purpose
+A TinyPerson is a basic agent. They can:
+
+Keep a “memory” of what they’ve said/received
+Act in the environment (e.g., speak, broadcast messages, use tools)
+Receive messages from other agents
+Key Attributes
+name: Agent’s name (string).
+memory: A list of past actions/messages.
+environment: Reference to the TinyWorld they inhabit.
+tools: A list of TinyTool objects the agent can use.
+Common Methods
+act(self, return_actions=False)
+Defines the agent’s “turn.” By default, they create or send an action.
+
+If return_actions is True, it returns the actions instead of immediately dispatching them.
+receive(self, action)
+Called by other agents or the environment to deliver a message or action to this agent.
+
+add_tool(self, tool)
+Attach a TinyTool to this agent’s toolbelt.
+
+use_tool(self, tool_name, *args, **kwargs)
+Look up a tool by tool_name in tools and execute its function.
+
+Minimal Example
+python
+Copy code
+from tinytroupe.agents import TinyPerson
+
+alice = TinyPerson("Alice")
+bob = TinyPerson("Bob")
+
+# Sample act method usage
+alice.act()
+bob.receive({"role": "Alice", "content": "Hello, Bob!"})
+5. PseudoPerson (User-Controlled Agent)
+Purpose
+If you want to manually control one agent—i.e., type your own responses in the simulation—you can subclass TinyPerson (or use your own custom logic) to override act() and prompt you for input.
+
+Example
+python
+Copy code
+class PseudoPerson(TinyPerson):
+    def __init__(self, name, role="User"):
+        super().__init__(name)
+        self.role = role
+
+    def act(self, return_actions=False):
+        user_input = input(f"{self.name} (You), type your message: ")
+        action = {
+            "role": self.role,
+            "content": user_input
+        }
+        self.memory.append(action)
+        if return_actions:
+            return [action]
+        else:
+            self.perform_action(action)
+
+    def perform_action(self, action):
+        # Broadcast or direct to a specific agent
+        for agent in self.environment.agents:
+            if agent != self:
+                agent.receive(action)
+Then add it to your TinyWorld just like any other agent.
+
+6. TinyTool (Tools / Functions)
+Purpose
+Tools let agents perform external or specialized functions (e.g., “calculate the weather,” “query a database,” etc.).
+
+Common Pattern
+TinyTool(name: str, function: callable)
+A class that wraps a Python function so it can be “used” by an agent.
+
+use(*args, **kwargs)
+Executes the underlying function.
+
+Example
+python
+Copy code
+from tinytroupe.tools import TinyTool
+
+def greet_tool_function(target_name):
+    return f"Hello, {target_name}! This is a greeting from a tool."
+
+greet_tool = TinyTool(name="GreetTool", function=greet_tool_function)
+
+# Then in your agent:
+agent_1.add_tool(greet_tool)
+result = agent_1.use_tool("GreetTool", "Alice")
+print(result)  # "Hello, Alice! This is a greeting from a tool."
+7. Configuration and Models (config.ini)
+Purpose
+TinyTroupe often relies on a config.ini file for specifying:
+
+Which LLM model to use
+API keys or endpoints
+Logging levels
+Example config.ini
+ini
+Copy code
+[OpenAI]
+API_TYPE=openai
+MODEL=gpt-4
+MAX_TOKENS=4096
+TEMPERATURE=1.2
+
+[Logging]
+LOGLEVEL=INFO
+Reading/Using Configuration
+Typically done via helper functions in openai_utils or utils.py:
+
+python
+Copy code
+import configparser
+from tinytroupe.utils import read_config_file
+
+config = read_config_file()
+model_name = config["OpenAI"]["MODEL"]
+If you want to switch to a custom model or your own service:
+
+Modify [OpenAI] section (or add a new [CustomModel]).
+In your code, register or force the library to use your custom model client.
+8. Putting It All Together: Minimal Simulation Example
+Below is a short snippet that combines the main features:
+
+python
+Copy code
+from tinytroupe.world import TinyWorld
+from tinytroupe.agents import TinyPerson
+from tinytroupe.factory import TinyPersonFactory
+from tinytroupe.tools import TinyTool
+
+# 1. Create a World
+world = TinyWorld(name="Demo World")
+
+# 2. Create or Generate Some Agents
+person_factory = TinyPersonFactory(context_text="A magical forest setting")
+agent_list = person_factory.generate_people(number_of_people=2, agent_particularities="Elven rangers")
+
+# 3. Create a PseudoPerson (user-controlled)
+class PseudoPerson(TinyPerson):
+    def act(self, return_actions=False):
+        user_input = input(f"{self.name} (You), type your message: ")
+        action = {
+            "role": "User",
+            "content": user_input
+        }
+        self.memory.append(action)
+        if return_actions:
+            return [action]
+        else:
+            self.perform_action(action)
+
+    def perform_action(self, action):
+        # broadcast to all other agents
+        for agent in self.environment.agents:
+            if agent != self:
+                agent.receive(action)
+
+pseudo_user = PseudoPerson("Player")
+
+# 4. Add Agents to the World
+world.add_agents(agent_list + [pseudo_user])
+
+# 5. Create a Tool
+def example_tool_function(text):
+    return f"Transformed text: {text.upper()}"
+
+example_tool = TinyTool(name="UpperCaseTool", function=example_tool_function)
+
+# 6. Give a tool to one of the AI agents
+agent_list[0].add_tool(example_tool)
+
+# 7. Run a few steps of simulation
+for step in range(2):
+    print(f"--- Step {step + 1} ---")
+    # User acts
+    pseudo_user.act()
+    # AI agents act
+    for agent in agent_list:
+        agent.act()
+
+# 8. Example: use the tool
+result = agent_list[0].use_tool("UpperCaseTool", "Hello from the Forest!")
+print(f"Tool result: {result}")
+When you run this:
+
+You (the user) can type something as the “Player.”
+The AI agents (generated by TinyPersonFactory) respond in their act() method (which you can customize).
+One agent has the UpperCaseTool and could use it if its logic calls for it.
+9. Key Takeaways
+TinyWorld: The container for agents and the “simulation” clock.
+TinyPerson: A basic agent that can send/receive messages, store memory, and use tools.
+TinyFactory / TinyPersonFactory: Classes for creating agents, often leveraging an LLM to auto-generate personalities or backgrounds.
+TinyTool: Wraps Python functions so agents can call them as if they were specialized “tools.”
+PseudoPerson: A custom or subclassed agent allowing a real user to type responses and participate in the simulation.
+config.ini: Where you configure your model type, credentials, logging, etc.
+With these components, you can build interactive simulations, story-like worlds, and experiments in agent-to-agent communication, all while optionally involving a “human agent” in the loop. This cheat sheet gives you the main pieces you need to get up and running quickly!

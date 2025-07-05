@@ -25,12 +25,19 @@ class TinyWorld:
 
     # Whether to display environments communications or not, for all environments. 
     communication_display = True
+    
+    # Whether to use Rich text formatting (colors, styles) or plain text
+    rich_text_display = True
+    
+    # Whether to show debug messages (like "_handle_talk: MEETING MODE" etc.)
+    debug_display = False
 
     def __init__(self, name: str="A TinyWorld", agents=[], 
                  initial_datetime=datetime.now(),
                  interventions=[],
                  broadcast_if_no_target=True,
-                 max_additional_targets_to_display=3):
+                 max_additional_targets_to_display=3,
+                 is_meeting=False):
         """
         Initializes an environment.
 
@@ -43,11 +50,14 @@ class TinyWorld:
             broadcast_if_no_target (bool): If True, broadcast actions if the target of an action is not found.
             max_additional_targets_to_display (int): The maximum number of additional targets to display in a communication. If None, 
                 all additional targets are displayed.
+            is_meeting (bool): If True, all TALK actions are broadcast to ALL participants regardless of target. 
+                This simulates real meeting behavior where everyone hears all conversations.
         """
 
         self.name = name
         self.current_datetime = initial_datetime
         self.broadcast_if_no_target = broadcast_if_no_target
+        self.is_meeting = is_meeting
         self.simulation_id = None # will be reset later if the agent is used within a specific simulation scope
         
         self.agents = []
@@ -74,16 +84,15 @@ class TinyWorld:
     # Simulation control methods
     #######################################################################
     @transactional
-    def _step(self, timedelta_per_step=None):
+    def _step(self, timedelta_per_step=None, current_round=None, total_rounds=None):
         """
-        Performs a single step in the environment. This default implementation
-        simply calls makes all agents in the environment act and properly
-        handle the resulting actions. Subclasses might override this method to implement 
-        different policies.
+        Performs a single step in the environment.
+        
+        Args:
+            timedelta_per_step: Time increment per step
+            current_round: Current simulation round number
+            total_rounds: Total number of simulation rounds
         """
-        # increase current datetime if timedelta is given. This must happen before
-        # any other simulation updates, to make sure that the agents are acting
-        # in the correct time, particularly if only one step is being run.
         self._advance_datetime(timedelta_per_step)
 
         # apply interventions
@@ -100,11 +109,11 @@ class TinyWorld:
         agents_actions = {}
         for agent in self.agents:
             logger.debug(f"[{self.name}] Agent {name_or_empty(agent)} is acting.")
-            actions = agent.act(return_actions=True)
+            actions = agent.act(return_actions=True, current_round=current_round, total_rounds=total_rounds)
             agents_actions[agent.name] = actions
 
             self._handle_actions(agent, agent.pop_latest_actions())
-        
+
         return agents_actions
         
 
@@ -124,15 +133,6 @@ class TinyWorld:
     def run(self, steps: int, timedelta_per_step=None, return_actions=False):
         """
         Runs the environment for a given number of steps.
-
-        Args:
-            steps (int): The number of steps to run the environment for.
-            timedelta_per_step (timedelta, optional): The time interval between steps. Defaults to None.
-            return_actions (bool, optional): If True, returns the actions taken by the agents. Defaults to False.
-        
-        Returns:
-            list: A list of actions taken by the agents over time, if return_actions is True. The list has this format:
-                  [{agent_name: [action_1, action_2, ...]}, {agent_name_2: [action_1, action_2, ...]}, ...]
         """
         agents_actions_over_time = []
         for i in range(steps):
@@ -141,9 +141,9 @@ class TinyWorld:
             if TinyWorld.communication_display:
                 self._display_step_communication(cur_step=i+1, total_steps=steps, timedelta_per_step=timedelta_per_step)
 
-            agents_actions = self._step(timedelta_per_step=timedelta_per_step)
+            agents_actions = self._step(timedelta_per_step=timedelta_per_step, current_round=i+1, total_rounds=steps)
             agents_actions_over_time.append(agents_actions)
-        
+
         if return_actions:
             return agents_actions_over_time
     
@@ -421,6 +421,7 @@ class TinyWorld:
     def _handle_talk(self, source_agent: TinyPerson, content: str, target: str):
         """
         Handles the TALK action by delivering the specified content to the specified target.
+        In meeting contexts, broadcasts to all participants regardless of target.
 
         Args:
             source_agent (TinyPerson): The agent that issued the TALK action.
@@ -430,11 +431,34 @@ class TinyWorld:
         target_agent = self.get_agent_by_name(target)
 
         logger.debug(f"[{self.name}] Delivering message from {name_or_empty(source_agent)} to {name_or_empty(target_agent)}.")
+        
+        # DEBUG: Add detailed logging (only if debug enabled)
+        if TinyWorld.debug_display:
+            print(f"DEBUG _handle_talk: source='{source_agent.name}', target='{target}', target_agent={target_agent}")
+            print(f"DEBUG _handle_talk: content='{content}'")
+            print(f"DEBUG _handle_talk: is_meeting={self.is_meeting}, broadcast_if_no_target={self.broadcast_if_no_target}")
 
-        if target_agent is not None:
-            target_agent.listen(content, source=source_agent)
-        elif self.broadcast_if_no_target:
+        # NEW: Meeting context broadcasting - everyone hears everything
+        if self.is_meeting:
+            if TinyWorld.debug_display:
+                print(f"DEBUG _handle_talk: MEETING MODE - Broadcasting to all participants")
             self.broadcast(content, source=source_agent)
+            return
+
+        # Original targeted logic for non-meeting contexts
+        if target_agent is not None:
+            if TinyWorld.debug_display:
+                print(f"DEBUG _handle_talk: Calling target_agent.listen() for {target_agent.name}")
+            target_agent.listen(content, source=source_agent)
+            if TinyWorld.debug_display:
+                print(f"DEBUG _handle_talk: After listen, target memory count: {len(target_agent.episodic_memory.memory)}")
+        elif self.broadcast_if_no_target:
+            if TinyWorld.debug_display:
+                print(f"DEBUG _handle_talk: Broadcasting because no target found")
+            self.broadcast(content, source=source_agent)
+        else:
+            if TinyWorld.debug_display:
+                print(f"DEBUG _handle_talk: No action taken - target not found and broadcast_if_no_target=False")
 
     #######################################################################
     # Interaction methods
