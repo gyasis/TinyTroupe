@@ -12,7 +12,8 @@ from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 import threading
 
-from tinytroupe.environment import TinyWorld, TinyPerson
+from tinytroupe.environment import TinyWorld
+from tinytroupe.agent import TinyPerson
 from tinytroupe.async_agent import AsyncTinyPerson
 from tinytroupe.async_event_bus import get_event_bus, EventType, Event
 from tinytroupe.ceo_interrupt import start_ceo_monitoring, stop_ceo_monitoring, CEOInterruptHandler
