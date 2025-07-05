@@ -505,24 +505,7 @@ class PersistentWorldManager:
         
         return previous_state
     
-    async def _restore_world_state(self, world: BusinessSimulationWorld, world_state: WorldState):
-        """Restore world from saved state"""
-        logger.info("Restoring world from previous state")
-        
-        # Restore time manager
-        self.time_manager.load_state(world_state.time_manager_state)
-        
-        # Restore hiring database
-        if hasattr(world, 'hiring_database'):
-            await self._restore_hiring_database(world.hiring_database, world_state.hiring_database_state)
-        
-        # Restore task manager (TODO: implement when task manager is integrated)
-        # if hasattr(world, 'task_manager'):
-        #     await self._restore_task_manager(world.task_manager, world_state.task_manager_state)
-        
-        # Restore business metrics
-        if hasattr(world, 'business_metrics'):
-            world.business_metrics.update(world_state.business_metrics)
+    # _restore_world_state method implemented later with enhanced functionality
     
     async def _initialize_new_world(self, world: BusinessSimulationWorld):
         """Initialize a new world with default state"""
@@ -584,23 +567,327 @@ class PersistentWorldManager:
     
     async def _extract_hiring_database_state(self, world: BusinessSimulationWorld) -> Dict[str, Any]:
         """Extract hiring database state from world"""
-        if hasattr(world, 'hiring_database'):
-            return {"employees": {}, "metrics": {}}  # TODO: Implement proper extraction
-        return {}
+        if not hasattr(world, 'hiring_database'):
+            return {}
+        
+        hiring_db = world.hiring_database
+        
+        # Extract employee data
+        employees_data = {}
+        for emp_id, employee in hiring_db.employees.items():
+            employees_data[emp_id] = {
+                "name": employee.name,
+                "employee_id": employee.employee_id,
+                "role": employee.role,
+                "department": employee.department,
+                "manager_id": employee.manager_id,
+                "direct_reports": employee.direct_reports,
+                "business_skills": employee.business_skills,
+                "performance_rating": employee.performance_rating,
+                "hire_date": employee.hire_date.isoformat() if employee.hire_date and hasattr(employee.hire_date, 'isoformat') else None
+            }
+        
+        # Extract metrics
+        metrics = {
+            "total_employees": len(hiring_db.employees),
+            "departments": list(set(emp.department for emp in hiring_db.employees.values())),
+            "roles": list(set(emp.role for emp in hiring_db.employees.values())),
+            "hiring_events": len(hiring_db.hiring_events)
+        }
+        
+        return {
+            "employees": employees_data,
+            "metrics": metrics,
+            "organizational_chart": {k: list(v) for k, v in hiring_db.organizational_chart.items()} if hasattr(hiring_db, 'organizational_chart') else {}
+        }
     
     async def _extract_business_metrics(self, world: BusinessSimulationWorld) -> Dict[str, Any]:
         """Extract business metrics from world"""
         return getattr(world, 'business_metrics', {})
     
     async def _extract_world_specific_state(self, world: BusinessSimulationWorld) -> Dict[str, Any]:
-        """Extract world-type specific state"""
-        # Override in subclasses for different world types
-        return {}
+        """Extract world-type specific state including agent states"""
+        
+        # Extract agent states for persistence
+        agent_states = {}
+        for agent in world.agents:
+            if hasattr(agent, 'employee_id'):  # Business employee
+                agent_states[agent.employee_id] = await self._extract_agent_state(agent)
+            else:  # Regular agent
+                agent_states[agent.name] = await self._extract_agent_state(agent)
+        
+        # Extract world-specific business data
+        world_data = {
+            "agent_states": agent_states,
+            "active_agent_count": len(world.agents),
+            "world_type": "business",
+            "business_hours_start": world.business_hours_start.isoformat() if hasattr(world, 'business_hours_start') else "09:00",
+            "business_hours_end": world.business_hours_end.isoformat() if hasattr(world, 'business_hours_end') else "17:00"
+        }
+        
+        return world_data
+    
+    async def _extract_agent_state(self, agent) -> Dict[str, Any]:
+        """Extract comprehensive agent state for persistence"""
+        
+        # Base agent state
+        agent_state = {
+            "name": agent.name,
+            "agent_type": type(agent).__name__
+        }
+        
+        # Extract memory states if available
+        if hasattr(agent, 'episodic_memory') and agent.episodic_memory:
+            agent_state["episodic_memory"] = self._serialize_memory(agent.episodic_memory)
+        
+        if hasattr(agent, 'semantic_memory') and agent.semantic_memory:
+            agent_state["semantic_memory"] = self._serialize_memory(agent.semantic_memory)
+        
+        # Extract persona and mental state
+        if hasattr(agent, '_persona'):
+            agent_state["persona"] = agent._persona
+        
+        if hasattr(agent, '_mental_state'):
+            agent_state["mental_state"] = agent._mental_state
+        
+        # Business-specific attributes for AsyncBusinessEmployee
+        if hasattr(agent, 'employee_id'):
+            agent_state.update({
+                "employee_id": agent.employee_id,
+                "role": agent.role,
+                "department": agent.department,
+                "manager_id": agent.manager_id,
+                "direct_reports": agent.direct_reports,
+                "business_skills": agent.business_skills,
+                "performance_rating": agent.performance_rating,
+                "hire_date": agent.hire_date.isoformat() if agent.hire_date and hasattr(agent.hire_date, 'isoformat') else None
+            })
+        
+        return agent_state
+    
+    def _serialize_memory(self, memory) -> Dict[str, Any]:
+        """Serialize memory object for storage"""
+        try:
+            if hasattr(memory, 'to_json'):
+                return memory.to_json()
+            elif hasattr(memory, '__dict__'):
+                # Simple serialization of memory attributes
+                memory_data = {}
+                for key, value in memory.__dict__.items():
+                    if not key.startswith('_'):  # Skip private attributes
+                        if isinstance(value, (str, int, float, bool, list, dict)):
+                            memory_data[key] = value
+                        else:
+                            memory_data[key] = str(value)
+                return memory_data
+            else:
+                return {"serialized": str(memory)}
+        except Exception as e:
+            logger.warning(f"Failed to serialize memory: {e}")
+            return {"error": f"Serialization failed: {e}"}
     
     async def _restore_hiring_database(self, hiring_db, state_data: Dict[str, Any]):
         """Restore hiring database from state"""
-        # TODO: Implement proper restoration
-        pass
+        if not state_data or "employees" not in state_data:
+            return
+        
+        from tinytroupe.business_employee import AsyncBusinessEmployee
+        from tinytroupe.agent.tiny_person import TinyPerson
+        from datetime import datetime
+        
+        # Clear existing employees
+        hiring_db.employees.clear()
+        
+        # Clear TinyPerson registry to avoid name conflicts during restoration
+        original_all_agents = TinyPerson.all_agents.copy()
+        TinyPerson.all_agents.clear()
+        
+        try:
+            # Restore employees
+            for emp_id, emp_data in state_data["employees"].items():
+                try:
+                    # Create business employee
+                    employee = AsyncBusinessEmployee(
+                        name=emp_data["name"],
+                        employee_id=emp_data["employee_id"],
+                        role=emp_data["role"],
+                        department=emp_data["department"],
+                        manager_id=emp_data.get("manager_id")
+                    )
+                    
+                    # Restore business attributes
+                    employee.direct_reports = emp_data.get("direct_reports", [])
+                    employee.business_skills = emp_data.get("business_skills", {})
+                    employee.performance_rating = emp_data.get("performance_rating", "Not Rated")
+                    
+                    # Restore hire date
+                    if emp_data.get("hire_date"):
+                        employee.hire_date = datetime.fromisoformat(emp_data["hire_date"]).date()
+                    
+                    # Add to hiring database
+                    hiring_db.employees[emp_id] = employee
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to restore employee {emp_id}: {e}")
+        
+        finally:
+            # Restore original agent registry (keeping the new employees)
+            # This preserves any existing agents while allowing the restored ones
+            for agent_name, agent in original_all_agents.items():
+                # Only add back agents that don't conflict with restored ones
+                if agent_name not in [emp.name for emp in hiring_db.employees.values()]:
+                    TinyPerson.all_agents[agent_name] = agent
+        
+        logger.info(f"Restored {len(hiring_db.employees)} employees to hiring database")
+    
+    async def _restore_world_state(self, world: BusinessSimulationWorld, world_state: WorldState):
+        """Restore world from saved state with enhanced agent restoration"""
+        logger.info("Restoring world from previous state with full agent states")
+        
+        # Restore time manager
+        self.time_manager.load_state(world_state.time_manager_state)
+        
+        # Restore hiring database
+        if hasattr(world, 'hiring_database'):
+            await self._restore_hiring_database(world.hiring_database, world_state.hiring_database_state)
+        
+        # Restore business metrics
+        if hasattr(world, 'business_metrics'):
+            world.business_metrics.update(world_state.business_metrics)
+        
+        # Restore agent states
+        await self._restore_agent_states(world, world_state.world_specific_state)
+    
+    async def _restore_agent_states(self, world: BusinessSimulationWorld, world_specific_state: Dict[str, Any]):
+        """Restore agent states from saved data and add them to world.agents"""
+        if "agent_states" not in world_specific_state:
+            logger.warning("No agent_states found in world_specific_state")
+            return
+        
+        agent_states = world_specific_state["agent_states"]
+        logger.info(f"Found {len(agent_states)} agent states to restore: {list(agent_states.keys())}")
+        
+        if hasattr(world, 'hiring_database'):
+            logger.info(f"Hiring database has {len(world.hiring_database.employees)} employees: {list(world.hiring_database.employees.keys())}")
+        
+        restored_agents = []
+        
+        for agent_id, agent_state in agent_states.items():
+            try:
+                agent = None
+                logger.info(f"Restoring agent {agent_id} of type {agent_state.get('agent_type')}")
+                
+                # For business employees, look them up in the hiring database first
+                if agent_state.get("agent_type") == "AsyncBusinessEmployee":
+                    employee_id = agent_state.get("employee_id")
+                    logger.info(f"Looking for employee_id {employee_id} in hiring database")
+                    
+                    if employee_id and hasattr(world, 'hiring_database') and employee_id in world.hiring_database.employees:
+                        # Use the employee already created by hiring database restoration
+                        agent = world.hiring_database.employees[employee_id]
+                        logger.info(f"Found employee {employee_id} in hiring database: {agent.name}")
+                        
+                        # Restore agent-specific state (memories, persona, mental state)
+                        await self._restore_agent_memories(agent, agent_state)
+                        
+                        if "persona" in agent_state:
+                            agent._persona = agent_state["persona"]
+                        
+                        if "mental_state" in agent_state:
+                            agent._mental_state = agent_state["mental_state"]
+                    else:
+                        logger.warning(f"Employee {employee_id} not found in hiring database, creating new one")
+                        # Fallback: create new business employee
+                        agent = await self._restore_business_employee(agent_state)
+                else:
+                    # Regular agent
+                    agent = await self._restore_regular_agent(agent_state)
+                
+                if agent:
+                    world.agents.append(agent)
+                    restored_agents.append(agent.name)
+                    logger.info(f"Successfully restored agent {agent.name} to world.agents")
+                else:
+                    logger.warning(f"Failed to create agent for {agent_id}")
+                    
+            except Exception as e:
+                logger.warning(f"Failed to restore agent {agent_id}: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        logger.info(f"Restored {len(restored_agents)} agents to world.agents: {restored_agents}")
+    
+    async def _restore_business_employee(self, agent_state: Dict[str, Any]):
+        """Restore a business employee from state"""
+        from tinytroupe.business_employee import AsyncBusinessEmployee
+        from datetime import datetime
+        
+        # Create business employee
+        employee = AsyncBusinessEmployee(
+            name=agent_state["name"],
+            employee_id=agent_state["employee_id"],
+            role=agent_state["role"],
+            department=agent_state["department"],
+            manager_id=agent_state.get("manager_id")
+        )
+        
+        # Restore business attributes
+        employee.direct_reports = agent_state.get("direct_reports", [])
+        employee.business_skills = agent_state.get("business_skills", {})
+        employee.performance_rating = agent_state.get("performance_rating", "Not Rated")
+        
+        if agent_state.get("hire_date"):
+            employee.hire_date = datetime.fromisoformat(agent_state["hire_date"]).date()
+        
+        # Restore persona and mental state
+        if "persona" in agent_state:
+            employee._persona = agent_state["persona"]
+        
+        if "mental_state" in agent_state:
+            employee._mental_state = agent_state["mental_state"]
+        
+        # Restore memories
+        await self._restore_agent_memories(employee, agent_state)
+        
+        return employee
+    
+    async def _restore_regular_agent(self, agent_state: Dict[str, Any]):
+        """Restore a regular TinyPerson agent from state"""
+        # This would require importing and creating appropriate agent types
+        # For now, return None to skip regular agents in business context
+        logger.debug(f"Skipping restoration of regular agent: {agent_state.get('name')}")
+        return None
+    
+    async def _restore_agent_memories(self, agent, agent_state: Dict[str, Any]):
+        """Restore agent memory states"""
+        try:
+            # Restore episodic memory
+            if "episodic_memory" in agent_state and hasattr(agent, 'episodic_memory'):
+                await self._restore_memory(agent.episodic_memory, agent_state["episodic_memory"])
+            
+            # Restore semantic memory
+            if "semantic_memory" in agent_state and hasattr(agent, 'semantic_memory'):
+                await self._restore_memory(agent.semantic_memory, agent_state["semantic_memory"])
+                
+        except Exception as e:
+            logger.warning(f"Failed to restore memories for {agent.name}: {e}")
+    
+    async def _restore_memory(self, memory_obj, memory_data: Dict[str, Any]):
+        """Restore a memory object from serialized data"""
+        if not memory_data or "error" in memory_data:
+            return
+        
+        try:
+            if hasattr(memory_obj, 'from_json') and "serialized" not in memory_data:
+                memory_obj.from_json(memory_data)
+            else:
+                # Simple attribute restoration
+                for key, value in memory_data.items():
+                    if hasattr(memory_obj, key):
+                        setattr(memory_obj, key, value)
+                        
+        except Exception as e:
+            logger.warning(f"Failed to restore memory object: {e}")
 
 
 # Convenience factory functions

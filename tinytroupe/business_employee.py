@@ -39,6 +39,10 @@ class AsyncBusinessEmployee(AsyncAdaptiveTinyPerson):
             manager_id: Manager's employee ID (optional)
             **kwargs: Additional arguments passed to AsyncAdaptiveTinyPerson
         """
+        # Initialize _configuration before calling super().__init__ 
+        # (required by TinyPerson.generate_agent_system_prompt during _post_init)
+        self._configuration = {}
+        
         super().__init__(name, **kwargs)
         
         # Core business properties
