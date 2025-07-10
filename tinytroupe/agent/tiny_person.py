@@ -159,6 +159,10 @@ class TinyPerson(JsonSerializableRegistry):
         if not hasattr(self, '_extended_agent_summary'):
             self._extended_agent_summary = None
 
+        # Initialize configuration dictionary for prompt generation
+        if not hasattr(self, '_configuration'):
+            self._configuration = {}
+
         self._prompt_template_path = os.path.join(
             os.path.dirname(__file__), "prompts/tiny_person.mustache"
         )

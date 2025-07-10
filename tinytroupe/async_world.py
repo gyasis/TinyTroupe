@@ -12,7 +12,8 @@ from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 import threading
 
-from tinytroupe.environment import TinyWorld, TinyPerson
+from tinytroupe.environment import TinyWorld
+from tinytroupe.agent import TinyPerson
 from tinytroupe.async_agent import AsyncTinyPerson
 from tinytroupe.async_event_bus import get_event_bus, EventType, Event
 from tinytroupe.ceo_interrupt import start_ceo_monitoring, stop_ceo_monitoring, CEOInterruptHandler
@@ -234,10 +235,9 @@ class AsyncTinyWorld(TinyWorld):
             for i in range(steps):
                 logger.info(f"[{self.name}] Running async world simulation step {i+1} of {steps}.")
                 
-                # Display communication if enabled
+                # Display step information if enabled
                 if TinyWorld.communication_display:
-                    self._display_communication(cur_step=i+1, total_steps=steps, kind='step', 
-                                              timedelta_per_step=timedelta_per_step)
+                    logger.info(f"[{self.name}] Step {i+1}/{steps} - Running async simulation")
                 
                 # Run async step
                 agents_actions = await self.async_step(
@@ -277,7 +277,7 @@ class AsyncTinyWorld(TinyWorld):
                 )
                 self._ceo_handler.event_bus = self._event_bus
                 
-                await start_ceo_monitoring(self._ceo_handler)
+                await start_ceo_monitoring()
                 self._ceo_monitoring_active = True
                 
                 logger.info(f"[{self.name}] CEO interrupt monitoring started (keys: {self.ceo_interrupt_keys})")
