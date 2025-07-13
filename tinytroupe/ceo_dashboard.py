@@ -875,6 +875,414 @@ class CEODashboard:
         
         return recommendations
 
+    # ===== CEO INTERVENTION CAPABILITIES =====
+
+    async def reassign_task(self, task_id: str, new_assignee_id: str, reason: str = "") -> Dict[str, Any]:
+        """
+        CEO Intervention: Directly reassign a task to a different employee
+        
+        Args:
+            task_id: ID of the task to reassign
+            new_assignee_id: Employee ID of the new assignee
+            reason: Reason for reassignment (for audit trail)
+            
+        Returns:
+            Dict with reassignment result and details
+        """
+        try:
+            # Validate task exists
+            if task_id not in self.task_manager.tasks:
+                return {
+                    "success": False,
+                    "error": f"Task {task_id} not found",
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            # Validate new assignee exists
+            if new_assignee_id not in self.hiring_database.employees:
+                return {
+                    "success": False,
+                    "error": f"Employee {new_assignee_id} not found",
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            task = self.task_manager.tasks[task_id]
+            old_assignee = task.assigned_to
+            
+            # Perform reassignment
+            success = await self.task_manager.reassign_task(task_id, new_assignee_id)
+            
+            if success:
+                # Log intervention
+                intervention_log = {
+                    "action": "task_reassignment",
+                    "task_id": task_id,
+                    "old_assignee": old_assignee,
+                    "new_assignee": new_assignee_id,
+                    "reason": reason,
+                    "timestamp": datetime.now().isoformat(),
+                    "initiated_by": "CEO"
+                }
+                
+                # Create alert for transparency
+                alert = DashboardAlert(
+                    alert_id=f"ceo_intervention_{task_id}_{datetime.now().timestamp()}",
+                    level=AlertLevel.INFO,
+                    category="task",
+                    title="CEO Task Reassignment",
+                    description=f"Task '{task.title}' reassigned from {old_assignee} to {new_assignee_id}",
+                    affected_entity=task_id,
+                    actions_suggested=[f"Monitor progress with new assignee"]
+                )
+                self.alerts.append(alert)
+                
+                logger.info(f"CEO intervention: Task {task_id} reassigned from {old_assignee} to {new_assignee_id}")
+                
+                return {
+                    "success": True,
+                    "intervention_log": intervention_log,
+                    "task_details": {
+                        "task_id": task_id,
+                        "title": task.title,
+                        "old_assignee": old_assignee,
+                        "new_assignee": new_assignee_id,
+                        "priority": task.priority.value,
+                        "status": task.status.value
+                    },
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Task reassignment failed",
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as e:
+            logger.error(f"Error in CEO task reassignment: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def adjust_task_priority(self, task_id: str, new_priority: TaskPriority, reason: str = "") -> Dict[str, Any]:
+        """
+        CEO Intervention: Adjust task priority in real-time
+        
+        Args:
+            task_id: ID of the task to adjust
+            new_priority: New priority level
+            reason: Reason for priority change
+            
+        Returns:
+            Dict with adjustment result and details
+        """
+        try:
+            # Validate task exists
+            if task_id not in self.task_manager.tasks:
+                return {
+                    "success": False,
+                    "error": f"Task {task_id} not found",
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            task = self.task_manager.tasks[task_id]
+            old_priority = task.priority
+            
+            # Perform priority adjustment
+            success = await self.task_manager.update_task_priority(task_id, new_priority)
+            
+            if success:
+                # Log intervention
+                intervention_log = {
+                    "action": "priority_adjustment",
+                    "task_id": task_id,
+                    "old_priority": old_priority.value,
+                    "new_priority": new_priority.value,
+                    "reason": reason,
+                    "timestamp": datetime.now().isoformat(),
+                    "initiated_by": "CEO"
+                }
+                
+                # Create alert for high-impact changes
+                if (old_priority == TaskPriority.LOW and new_priority == TaskPriority.CRITICAL) or \
+                   (old_priority == TaskPriority.CRITICAL and new_priority == TaskPriority.LOW):
+                    alert = DashboardAlert(
+                        alert_id=f"ceo_priority_{task_id}_{datetime.now().timestamp()}",
+                        level=AlertLevel.WARNING,
+                        category="task",
+                        title="CEO Priority Override",
+                        description=f"Task '{task.title}' priority changed from {old_priority.value} to {new_priority.value}",
+                        affected_entity=task_id,
+                        actions_suggested=["Monitor task progress closely", "Verify resource allocation"]
+                    )
+                    self.alerts.append(alert)
+                
+                logger.info(f"CEO intervention: Task {task_id} priority changed from {old_priority.value} to {new_priority.value}")
+                
+                return {
+                    "success": True,
+                    "intervention_log": intervention_log,
+                    "task_details": {
+                        "task_id": task_id,
+                        "title": task.title,
+                        "assignee": task.assigned_to,
+                        "old_priority": old_priority.value,
+                        "new_priority": new_priority.value,
+                        "status": task.status.value
+                    },
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Priority adjustment failed",
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as e:
+            logger.error(f"Error in CEO priority adjustment: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def modify_task_deadline(self, task_id: str, new_deadline: datetime, reason: str = "") -> Dict[str, Any]:
+        """
+        CEO Intervention: Modify task deadline
+        
+        Args:
+            task_id: ID of the task to modify
+            new_deadline: New deadline for the task
+            reason: Reason for deadline change
+            
+        Returns:
+            Dict with modification result and details
+        """
+        try:
+            # Validate task exists
+            if task_id not in self.task_manager.tasks:
+                return {
+                    "success": False,
+                    "error": f"Task {task_id} not found",
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            task = self.task_manager.tasks[task_id]
+            old_deadline = task.due_date
+            
+            # Perform deadline modification
+            success = await self.task_manager.update_task_deadline(task_id, new_deadline)
+            
+            if success:
+                # Calculate deadline impact
+                if old_deadline:
+                    deadline_change_days = (new_deadline - old_deadline).days
+                    impact = "extended" if deadline_change_days > 0 else "shortened"
+                else:
+                    deadline_change_days = None
+                    impact = "set"
+                
+                # Log intervention
+                intervention_log = {
+                    "action": "deadline_modification",
+                    "task_id": task_id,
+                    "old_deadline": old_deadline.isoformat() if old_deadline else None,
+                    "new_deadline": new_deadline.isoformat(),
+                    "deadline_change_days": deadline_change_days,
+                    "impact": impact,
+                    "reason": reason,
+                    "timestamp": datetime.now().isoformat(),
+                    "initiated_by": "CEO"
+                }
+                
+                # Create alert for significant deadline changes
+                if deadline_change_days and abs(deadline_change_days) > 7:  # More than a week change
+                    alert = DashboardAlert(
+                        alert_id=f"ceo_deadline_{task_id}_{datetime.now().timestamp()}",
+                        level=AlertLevel.WARNING,
+                        category="task",
+                        title="CEO Deadline Override",
+                        description=f"Task '{task.title}' deadline {impact} by {abs(deadline_change_days)} days",
+                        affected_entity=task_id,
+                        actions_suggested=["Notify assignee of deadline change", "Review task dependencies"]
+                    )
+                    self.alerts.append(alert)
+                
+                logger.info(f"CEO intervention: Task {task_id} deadline {impact}")
+                
+                return {
+                    "success": True,
+                    "intervention_log": intervention_log,
+                    "task_details": {
+                        "task_id": task_id,
+                        "title": task.title,
+                        "assignee": task.assigned_to,
+                        "old_deadline": old_deadline.isoformat() if old_deadline else None,
+                        "new_deadline": new_deadline.isoformat(),
+                        "deadline_change_days": deadline_change_days,
+                        "impact": impact,
+                        "status": task.status.value
+                    },
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Deadline modification failed",
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as e:
+            logger.error(f"Error in CEO deadline modification: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def emergency_task_intervention(self, task_id: str, intervention_type: str, 
+                                        target_assignee: str = None, new_priority: TaskPriority = None,
+                                        new_deadline: datetime = None, reason: str = "Emergency intervention") -> Dict[str, Any]:
+        """
+        CEO Emergency Intervention: Comprehensive task intervention for critical situations
+        
+        Args:
+            task_id: ID of the task requiring intervention
+            intervention_type: Type of intervention ("reassign", "escalate", "deprioritize", "rush")
+            target_assignee: Employee ID for reassignment (if applicable)
+            new_priority: New priority for the task (if applicable)
+            new_deadline: New deadline for the task (if applicable)
+            reason: Detailed reason for emergency intervention
+            
+        Returns:
+            Dict with comprehensive intervention results
+        """
+        try:
+            # Validate task exists
+            if task_id not in self.task_manager.tasks:
+                return {
+                    "success": False,
+                    "error": f"Task {task_id} not found",
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            task = self.task_manager.tasks[task_id]
+            intervention_results = []
+            
+            # Execute intervention based on type
+            if intervention_type == "reassign" and target_assignee:
+                result = await self.reassign_task(task_id, target_assignee, f"Emergency: {reason}")
+                intervention_results.append(result)
+                
+            elif intervention_type == "escalate":
+                # Escalate to highest priority and shortest reasonable deadline
+                priority_result = await self.adjust_task_priority(task_id, TaskPriority.CRITICAL, f"Emergency escalation: {reason}")
+                intervention_results.append(priority_result)
+                
+                if new_deadline:
+                    deadline_result = await self.modify_task_deadline(task_id, new_deadline, f"Emergency escalation: {reason}")
+                    intervention_results.append(deadline_result)
+                    
+            elif intervention_type == "deprioritize":
+                # Lower priority to address resource conflicts
+                priority_result = await self.adjust_task_priority(task_id, new_priority or TaskPriority.LOW, f"Emergency deprioritization: {reason}")
+                intervention_results.append(priority_result)
+                
+            elif intervention_type == "rush":
+                # Rush job: highest priority, shortest deadline, best available assignee
+                priority_result = await self.adjust_task_priority(task_id, TaskPriority.CRITICAL, f"Rush job: {reason}")
+                intervention_results.append(priority_result)
+                
+                if new_deadline:
+                    deadline_result = await self.modify_task_deadline(task_id, new_deadline, f"Rush job: {reason}")
+                    intervention_results.append(deadline_result)
+                    
+                if target_assignee:
+                    reassign_result = await self.reassign_task(task_id, target_assignee, f"Rush job: {reason}")
+                    intervention_results.append(reassign_result)
+            
+            # Create emergency alert
+            alert = DashboardAlert(
+                alert_id=f"ceo_emergency_{task_id}_{datetime.now().timestamp()}",
+                level=AlertLevel.URGENT,
+                category="task",
+                title=f"CEO Emergency Intervention - {intervention_type.title()}",
+                description=f"Emergency intervention on task '{task.title}': {reason}",
+                affected_entity=task_id,
+                actions_suggested=["Monitor closely", "Verify intervention effectiveness", "Update stakeholders"]
+            )
+            self.alerts.append(alert)
+            
+            # Log comprehensive intervention
+            intervention_log = {
+                "action": "emergency_intervention",
+                "intervention_type": intervention_type,
+                "task_id": task_id,
+                "reason": reason,
+                "results": intervention_results,
+                "timestamp": datetime.now().isoformat(),
+                "initiated_by": "CEO",
+                "alert_created": alert.alert_id
+            }
+            
+            logger.warning(f"CEO emergency intervention: {intervention_type} on task {task_id} - {reason}")
+            
+            return {
+                "success": all(r.get("success", False) for r in intervention_results),
+                "intervention_log": intervention_log,
+                "intervention_results": intervention_results,
+                "alert_created": alert.alert_id,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in CEO emergency intervention: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    async def get_intervention_history(self, days_back: int = 30) -> List[Dict[str, Any]]:
+        """
+        Get history of all CEO interventions
+        
+        Args:
+            days_back: Number of days to look back for interventions
+            
+        Returns:
+            List of intervention records
+        """
+        # Filter alerts for CEO interventions
+        cutoff_date = datetime.now() - timedelta(days=days_back)
+        
+        intervention_alerts = [
+            alert for alert in self.alert_history + self.alerts
+            if alert.timestamp >= cutoff_date and 
+               ("CEO" in alert.title or "ceo_intervention" in alert.alert_id or "ceo_emergency" in alert.alert_id)
+        ]
+        
+        # Convert to intervention history format
+        interventions = []
+        for alert in intervention_alerts:
+            interventions.append({
+                "intervention_id": alert.alert_id,
+                "type": alert.category,
+                "title": alert.title,
+                "description": alert.description,
+                "affected_entity": alert.affected_entity,
+                "timestamp": alert.timestamp.isoformat(),
+                "acknowledged": alert.acknowledged
+            })
+        
+        # Sort by timestamp (most recent first)
+        interventions.sort(key=lambda x: x["timestamp"], reverse=True)
+        
+        return interventions
+
     def export_dashboard_data(self, format: str = "json") -> str:
         """Export dashboard data for external analysis"""
         # Implementation would depend on the desired export format

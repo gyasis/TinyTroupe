@@ -458,6 +458,114 @@ class TaskManager:
             tasks = [t for t in tasks if t.is_overdue()]
         
         return tasks
+
+    # ===== CEO INTERVENTION SUPPORT METHODS =====
+
+    async def reassign_task(self, task_id: str, new_assignee_id: str) -> bool:
+        """
+        Reassign a task to a different employee (CEO intervention support)
+        
+        Args:
+            task_id: ID of the task to reassign
+            new_assignee_id: Employee ID of the new assignee
+            
+        Returns:
+            True if reassignment successful, False otherwise
+        """
+        if task_id not in self.tasks:
+            return False
+        
+        task = self.tasks[task_id]
+        old_assignee = task.assigned_to
+        
+        try:
+            # Remove from old assignee's workload
+            if old_assignee:
+                self._remove_from_workload(old_assignee, task_id)
+            
+            # Update task assignment
+            task.assigned_to = new_assignee_id
+            task.add_update(
+                updater_id="CEO",
+                new_status=task.status,  # Keep current status
+                notes=f"Task reassigned from {old_assignee} to {new_assignee_id}"
+            )
+            
+            # Add to new assignee's workload
+            self._add_to_workload(new_assignee_id, task_id)
+            
+            logger.info(f"Task {task_id} reassigned from {old_assignee} to {new_assignee_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error reassigning task {task_id}: {e}")
+            return False
+
+    async def update_task_priority(self, task_id: str, new_priority: TaskPriority) -> bool:
+        """
+        Update task priority (CEO intervention support)
+        
+        Args:
+            task_id: ID of the task to update
+            new_priority: New priority level
+            
+        Returns:
+            True if priority update successful, False otherwise
+        """
+        if task_id not in self.tasks:
+            return False
+        
+        task = self.tasks[task_id]
+        old_priority = task.priority
+        
+        try:
+            # Update task priority
+            task.priority = new_priority
+            task.add_update(
+                updater_id="CEO",
+                new_status=task.status,  # Keep current status
+                notes=f"Priority changed from {old_priority.value} to {new_priority.value}"
+            )
+            
+            logger.info(f"Task {task_id} priority updated from {old_priority.value} to {new_priority.value}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating task {task_id} priority: {e}")
+            return False
+
+    async def update_task_deadline(self, task_id: str, new_deadline: datetime) -> bool:
+        """
+        Update task deadline (CEO intervention support)
+        
+        Args:
+            task_id: ID of the task to update
+            new_deadline: New deadline for the task
+            
+        Returns:
+            True if deadline update successful, False otherwise
+        """
+        if task_id not in self.tasks:
+            return False
+        
+        task = self.tasks[task_id]
+        old_deadline = task.due_date
+        
+        try:
+            # Update task deadline
+            task.due_date = new_deadline
+            task.add_update(
+                updater_id="CEO",
+                new_status=task.status,  # Keep current status
+                notes=f"Deadline updated from {old_deadline.isoformat() if old_deadline else 'None'} to {new_deadline.isoformat()}"
+            )
+            
+            logger.info(f"Task {task_id} deadline updated")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating task {task_id} deadline: {e}")
+            return False
     
     def _add_to_workload(self, employee_id: str, task_id: str):
         """Add task to employee workload"""
