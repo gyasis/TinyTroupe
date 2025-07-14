@@ -342,8 +342,14 @@ def simulate_day_3(team):
 def main():
     """Run the 3-day simulation."""
     
+    # Create logs directory if it doesn't exist
+    import os
+    logs_dir = "logs"
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+    
     # Set up logging to both console and file
-    log_filename = f"cloudflow_simulation_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    log_filename = os.path.join(logs_dir, f"cloudflow_simulation_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
     logger = TeeLogger(log_filename)
     sys.stdout = logger
     

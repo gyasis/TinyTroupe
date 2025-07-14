@@ -180,7 +180,7 @@ Watch agents think and communicate simultaneously:
 ## 📂 Output Files
 
 All simulations automatically generate:
-- **`*_simulation_log_YYYYMMDD_HHMMSS.txt`** - 📝 **COMPLETE SIMULATION LOG**
+- **`logs/*_simulation_log_YYYYMMDD_HHMMSS.txt`** - 📝 **COMPLETE SIMULATION LOG**
   - Full conversation transcripts
   - All agent thoughts and actions
   - Meeting discussions and decisions
@@ -191,13 +191,27 @@ All simulations automatically generate:
 - Generated documents (stored in agent memories)
 
 ### 🎯 **Key Feature: Automatic Logging**
-**Every script automatically saves a complete log file** so you can:
+**Every script automatically saves a complete log file in the `logs/` folder** so you can:
 - Review all conversations after the simulation
 - Share results with team members
 - Analyze agent decision-making patterns
 - Keep permanent records of simulations
+- Organized file structure with all logs in one place
 
-**Example log filename:** `cloudflow_simulation_log_20250714_073045.txt`
+**Example log path:** `logs/cloudflow_simulation_log_20250714_073045.txt`
+
+### 📁 **File Organization**
+```
+tinytroupe/
+├── basic_3day_showcase.py
+├── comprehensive_3day_simulation.py
+├── logs/                           # 📂 All simulation logs
+│   ├── cloudflow_simulation_log_20250714_073045.txt
+│   ├── healthchain_simulation_log_20250714_081230.txt
+│   └── ...
+├── *.cache.json                    # Simulation state files
+└── *_results.json                  # Results when completed
+```
 
 ## 🔍 Customization
 
