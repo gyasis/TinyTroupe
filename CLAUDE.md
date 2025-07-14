@@ -377,3 +377,127 @@ Real-time control during any async simulation:
 - **✅ Concurrent Processing**: 10x faster meetings through parallel agent processing
 - **✅ Comprehensive Tests**: Full test suite and usage examples
 - **✅ Documentation**: Complete guides for async features and orchestration
+
+## MCP (Model Context Protocol) Integration (2025-07-14)
+
+### MCP Client Architecture
+TinyTroupe now includes comprehensive **MCP (Model Context Protocol) client capabilities** that enable agents to connect to and use external tools through MCP servers:
+
+#### Core MCP Components
+- **MCPClient** (`tinytroupe/mcp_integration.py`): Client for connecting to MCP servers via stdio/SSE protocols
+- **MCPToolWrapper** (`tinytroupe/mcp_integration.py`): Adapts MCP tools to work with TinyTroupe's Present Feature
+- **MCPIntegrationManager** (`tinytroupe/mcp_integration.py`): High-level orchestration and lifecycle management
+- **MCPPresentAdaptiveTinyPerson** (`tinytroupe/mcp_present_agent.py`): Agents with both Present Feature and MCP capabilities
+
+#### MCP Server Configuration
+```python
+from tinytroupe.mcp_integration import mcp_integration_manager
+
+# Configure MCP servers
+mcp_integration_manager.configure_mcp_server(
+    name="filesystem",
+    command=["uvx", "mcp-server-filesystem", "--directory", "."]
+)
+
+mcp_integration_manager.configure_mcp_server(
+    name="git",
+    command=["uvx", "mcp-server-git", "--repository", "."]
+)
+
+# Connect to all configured servers
+await mcp_integration_manager.connect_to_servers()
+```
+
+#### MCP-Enabled Agents
+```python
+from tinytroupe.mcp_present_agent import create_mcp_present_adaptive_agent
+
+# Create agents with both Present Feature and MCP capabilities
+compliance_agent = create_mcp_present_adaptive_agent(
+    "Michael Thompson", 
+    "Compliance Officer"
+)
+
+tech_agent = create_mcp_present_adaptive_agent(
+    "Dr. James Wilson", 
+    "Chief Technology Officer"
+)
+```
+
+#### Dual Output Mode Support
+MCP tools integrate seamlessly with Present Feature output modes:
+- **PRESENT Mode**: Detailed documents from MCP tool results
+- **TALK Mode**: Conversational summaries of MCP tool outputs
+- **HYBRID Mode**: Summary with detailed reference to MCP results
+
+#### Role-Based MCP Tool Assignment
+```python
+# Automatic tool assignment based on agent roles
+role_tool_mapping = {
+    "compliance_officer": ["compliance", "audit", "regulation", "policy"],
+    "technical_lead": ["code", "system", "technical", "debug", "deploy"],
+    "project_manager": ["schedule", "project", "task", "timeline", "resource"],
+    "data_specialist": ["data", "analyze", "query", "database", "report"]
+}
+
+# Tools are filtered and assigned based on role keywords
+mcp_integration_manager.assign_mcp_tools_to_role("compliance_officer")
+```
+
+#### MCP Tool Usage Examples
+```python
+# Agents can use MCP tools through standard action patterns
+agent.act({
+    "type": "MCP_READ_FILE",
+    "content": {
+        "tool": "mcp_filesystem_read",
+        "arguments": {"path": "./compliance_report.md"},
+        "output_mode": "present"
+    }
+})
+
+# Or through Present Feature integration
+agent.act({
+    "type": "PRESENT",
+    "content": {
+        "tool": "mcp_git_log",
+        "topic": "Recent repository changes",
+        "format": "markdown",
+        "parameters": {"max_commits": 10}
+    }
+})
+```
+
+#### MCP Testing and Validation
+```bash
+# Test MCP integration
+python test_mcp_integration.py
+
+# Example MCP setup and usage
+python -c "import asyncio; from tinytroupe.mcp_present_agent import test_mcp_integration; asyncio.run(test_mcp_integration())"
+```
+
+### MCP Integration Features
+1. **External Tool Access**: Connect to any MCP-compatible server (filesystem, git, databases, APIs)
+2. **Present Feature Compatibility**: MCP tools work with PRESENT/TALK/HYBRID output modes
+3. **Role-Based Permissions**: Automatic tool filtering based on agent roles and capabilities
+4. **Provenance Logging**: Full tracking of MCP tool usage with reasoning traces
+5. **Context-Aware Guidance**: MCP tool suggestions adapt to meeting and discussion context
+6. **Error Handling**: Robust error handling with graceful degradation
+7. **Async Support**: MCP operations integrate with TinyTroupe's async architecture
+
+### Recent MCP Development (2025-07-14)
+- **✅ MCP Client Infrastructure**: Complete stdio/SSE protocol support for MCP servers
+- **✅ Tool Wrapper System**: Seamless integration of MCP tools with Present Feature
+- **✅ Agent Enhancement**: MCPPresentAdaptiveTinyPerson with dual capabilities
+- **✅ Role-Based Assignment**: Intelligent tool filtering and permission management
+- **✅ Output Mode Integration**: MCP tools support all Present Feature output modes
+- **✅ Comprehensive Testing**: Full test suite with 6/6 tests passing
+- **✅ Documentation**: Complete usage guides and examples
+
+### MCP Best Practices
+- **Use MCP for External Capabilities**: Leverage MCP servers for file system, git, database, and API access
+- **Combine with Present Feature**: Use MCP tools within PRESENT/SUMMARIZE/SHARE workflows
+- **Role-Appropriate Assignment**: Let system auto-assign MCP tools based on agent roles
+- **Context-Aware Usage**: MCP tool suggestions adapt to business/technical discussion contexts
+- **Monitor Provenance**: Track MCP tool usage for compliance and explainability
