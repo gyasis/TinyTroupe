@@ -15,6 +15,7 @@ Features demonstrated:
 """
 
 import json
+import sys
 from datetime import datetime
 
 # Core TinyTroupe imports only
@@ -22,6 +23,25 @@ from tinytroupe import control
 from tinytroupe.agent import TinyPerson
 from tinytroupe.environment import TinyWorld
 from tinytroupe.extraction import ResultsExtractor
+
+
+class TeeLogger:
+    """Logger that writes to both console and file simultaneously."""
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        self.log = open(filename, 'w')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()  # Ensure immediate writing
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def close(self):
+        self.log.close()
 
 # Clean display settings
 TinyPerson.rich_text_display = False
@@ -322,6 +342,13 @@ def simulate_day_3(team):
 def main():
     """Run the 3-day simulation."""
     
+    # Set up logging to both console and file
+    log_filename = f"cloudflow_simulation_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    logger = TeeLogger(log_filename)
+    sys.stdout = logger
+    
+    print(f"📝 Logging simulation to: {log_filename}")
+    print(f"🕐 Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("\n🚀 CloudFlow Dynamics - 3-Day Q1 Planning Sprint")
     print("Showcasing TinyTroupe's Core Business Simulation Capabilities")
     print("="*60)
@@ -403,7 +430,16 @@ def main():
     finally:
         # Clean up
         control.end()
+        print(f"\n🕐 Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("\n👋 Thank you for experiencing TinyTroupe's business simulation capabilities!")
+        print(f"📝 Full simulation log saved to: {log_filename}")
+        
+        # Restore stdout and close logger
+        sys.stdout = logger.terminal
+        logger.close()
+        
+        # Print final message to console only
+        print(f"\n✅ Simulation complete! Full log available at: {log_filename}")
 
 
 if __name__ == "__main__":

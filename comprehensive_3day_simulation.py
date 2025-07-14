@@ -19,8 +19,28 @@ The simulation follows a healthcare blockchain startup through 3 days of intensi
 import asyncio
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
+
+
+class TeeLogger:
+    """Logger that writes to both console and file simultaneously."""
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        self.log = open(filename, 'w')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()  # Ensure immediate writing
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def close(self):
+        self.log.close()
 
 # Core TinyTroupe imports
 from tinytroupe import control
@@ -577,6 +597,14 @@ async def simulate_day_3(team: Dict, dashboard: CEODashboard, interrupt_handler:
 
 async def main():
     """Main simulation orchestration function."""
+    
+    # Set up logging to both console and file
+    log_filename = f"healthchain_simulation_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    logger = TeeLogger(log_filename)
+    sys.stdout = logger
+    
+    print(f"📝 Logging simulation to: {log_filename}")
+    print(f"🕐 Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("\n🚀 HealthChain Dynamics - 3-Day MVP Sprint Simulation")
     print("Showcasing ALL TinyTroupe Features:")
     print("- MCP Integration (External Tools)")
@@ -711,6 +739,7 @@ async def main():
         control.end()
         await mcp_integration_manager.disconnect_from_servers()
         
+        print(f"\n🕐 Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("\n👋 Thank you for experiencing the full power of TinyTroupe!")
         print("   This simulation showcased:")
         print("   - MCP integration for external tool access")
@@ -719,6 +748,14 @@ async def main():
         print("   - Async orchestration for realistic concurrency")
         print("   - CEO Dashboard for business monitoring")
         print("   - And much more!")
+        print(f"📝 Full simulation log saved to: {log_filename}")
+        
+        # Restore stdout and close logger
+        sys.stdout = logger.terminal
+        logger.close()
+        
+        # Print final message to console only
+        print(f"\n✅ Comprehensive simulation complete! Full log available at: {log_filename}")
 
 
 if __name__ == "__main__":

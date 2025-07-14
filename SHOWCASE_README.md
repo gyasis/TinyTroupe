@@ -179,11 +179,25 @@ Watch agents think and communicate simultaneously:
 
 ## 📂 Output Files
 
-Both simulations generate:
-- `*.cache.json` - Simulation state cache
-- `*_results.json` - Comprehensive results and metrics
-- Console output with meeting transcripts
-- Generated documents (in agent memories)
+All simulations automatically generate:
+- **`*_simulation_log_YYYYMMDD_HHMMSS.txt`** - 📝 **COMPLETE SIMULATION LOG**
+  - Full conversation transcripts
+  - All agent thoughts and actions
+  - Meeting discussions and decisions
+  - Timestamped events
+  - Everything you see on console, saved to file!
+- `*.cache.json` - Simulation state cache for resuming
+- `*_results.json` - Comprehensive results and metrics (when completed)
+- Generated documents (stored in agent memories)
+
+### 🎯 **Key Feature: Automatic Logging**
+**Every script automatically saves a complete log file** so you can:
+- Review all conversations after the simulation
+- Share results with team members
+- Analyze agent decision-making patterns
+- Keep permanent records of simulations
+
+**Example log filename:** `cloudflow_simulation_log_20250714_073045.txt`
 
 ## 🔍 Customization
 
