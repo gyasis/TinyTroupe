@@ -170,3 +170,13 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 logs/
+
+# Project specific ignores
+prd/
+simulation_results_*/
+test_*.py
+simple_*_test.py
+cloudflow_*.txt
+cloudflow_*.json
+llm_coding_principle.md
+.specstory/
